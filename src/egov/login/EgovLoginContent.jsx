@@ -19,14 +19,16 @@ function EgovLoginContent(props) {
 
     const submitFormHandler = (e) => {
         console.log("EgovLoginContent submitFormHandler()");
-        
+
         const loginUrl = "/uat/uia/actionLoginAPI.do"
         const requestOptions = {
             method: "POST",
             headers: {
-                'Content-type': 'application/json'
+                'Content-type': 'application/json',
+                'Accept': 'application/json'
             },
-            body: JSON.stringify(userInfo)
+            body: JSON.stringify(userInfo),
+            credentials: 'include'  // 쿠키 및 인증 정보 포함
         }
 
         EgovNet.requestFetch(loginUrl,
@@ -46,7 +48,7 @@ function EgovLoginContent(props) {
 
     console.log("------------------------------EgovLoginContent [End]");
     console.groupEnd("EgovLoginContent");
-    
+
     return (
         <div className="contents" id="contents">
             {/* <!-- 본문 --> */}
