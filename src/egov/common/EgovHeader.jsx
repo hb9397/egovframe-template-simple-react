@@ -1,12 +1,12 @@
 import React from 'react';
-import { Link, NavLink, useHistory } from 'react-router-dom';
+import {Link, NavLink, useHistory} from 'react-router-dom';
 
 import * as EgovNet from 'context/egovFetch';
 
 import URL from 'context/url';
 import CODE from 'context/code';
 
-function EgovHeader({ loginUser, onChangeLogin }) {
+function EgovHeader({loginUser, onChangeLogin}) {
     console.group("EgovHeader");
     console.log("[Start] EgovHeader ------------------------------");
 
@@ -24,7 +24,7 @@ function EgovHeader({ loginUser, onChangeLogin }) {
             function (resp) {
                 console.log("===>>> logout resp= ", resp);
                 if (resp.resultCode == CODE.RCV_SUCCESS) {
-                    onChangeLogin({ loginVO: {} });
+                    onChangeLogin({loginVO: {}});
                     window.alert("로그아웃되었습니다!");
                     history.push(URL.MAIN);
                 }
@@ -42,14 +42,17 @@ function EgovHeader({ loginUser, onChangeLogin }) {
                 <Link to={URL.MAIN} className="ico lnk_go_template" target="_blank">홈페이지 템플릿 소개 페이지로 이동</Link>
 
                 <h1 className="logo">
-                    <Link to={URL.MAIN} className="w"><img src="/assets/images/logo_w.png" alt="표준프레임워크포털 eGovFrame 심플홈페이지" /></Link>
-                    <Link to={URL.MAIN} className="m"><img src="/assets/images/logo_m.png" alt="표준프레임워크포털 eGovFrame 심플홈페이지" /></Link>
+                    <Link to={URL.MAIN} className="w"><img src="/assets/images/logo_w.png"
+                                                           alt="표준프레임워크포털 eGovFrame 심플홈페이지"/></Link>
+                    <Link to={URL.MAIN} className="m"><img src="/assets/images/logo_m.png"
+                                                           alt="표준프레임워크포털 eGovFrame 심플홈페이지"/></Link>
                 </h1>
 
                 <div className="gnb">
                     <h2 className="blind">주메뉴</h2>
                     <ul>
                         <li><NavLink to={URL.ABOUT} activeClassName="cur">사이트소개</NavLink></li>
+                        <li><NavLink to={URL.EPR} activeClassName="cur">수행실적신고관리</NavLink></li>
                         <li><NavLink to={URL.INTRO} activeClassName="cur">정보마당</NavLink></li>
                         <li><NavLink to={URL.SUPPORT} activeClassName="cur">고객지원</NavLink></li>
                         <li><NavLink to={URL.INFORM} activeClassName="cur">알림마당</NavLink></li>
@@ -93,6 +96,15 @@ function EgovHeader({ loginUser, onChangeLogin }) {
                             <li><NavLink to={URL.ABOUT_HISTORY} activeClassName="cur">연혁</NavLink></li>
                             <li><NavLink to={URL.ABOUT_ORGANIZATION} activeClassName="cur">조직소개</NavLink></li>
                             <li><NavLink to={URL.ABOUT_LOCATION} activeClassName="cur">찾아오시는 길</NavLink></li>
+                        </ul>
+                    </div>
+                    <div className="col">
+                        <h3>수행실적신고관리</h3>
+                        <ul>
+                            <li><NavLink to={URL.EXC_PER_REP} activeClassName="cur">수행실적신고</NavLink></li>
+                            <li><NavLink to={""} activeClassName="cur">test</NavLink></li>
+                            <li><NavLink to={""} activeClassName="cur">test</NavLink></li>
+                            <li><NavLink to={""} activeClassName="cur">test</NavLink></li>
                         </ul>
                     </div>
                     <div className="col">
@@ -157,6 +169,13 @@ function EgovHeader({ loginUser, onChangeLogin }) {
                         <li><NavLink to={URL.ABOUT_HISTORY} activeClassName="cur">연혁</NavLink></li>
                         <li><NavLink to={URL.ABOUT_ORGANIZATION} activeClassName="cur">조직소개</NavLink></li>
                         <li><NavLink to={URL.ABOUT_LOCATION} activeClassName="cur">찾아오시는 길</NavLink></li>
+                    </ul>
+                    <h3><Link to={URL.EPR}>수행실적신고관리</Link></h3>
+                    <ul>
+                        <li><NavLink to={URL.EXC_PER_REP} activeClassName="cur">수행실적신고</NavLink></li>
+                        <li><NavLink to={""} activeClassName="cur">test</NavLink></li>
+                        <li><NavLink to={""} activeClassName="cur">test</NavLink></li>
+                        <li><NavLink to={""} activeClassName="cur">test</NavLink></li>
                     </ul>
                     <h3><Link to={URL.INTRO}>정보마당</Link></h3>
                     <ul>

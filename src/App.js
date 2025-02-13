@@ -73,6 +73,7 @@ import './css/layout.css';
 import './css/component.css';
 import './css/page.css';
 import './css/response.css';
+import ExcPerRepList from "./egov/epr/ExcPerRepList";
 
 function App() {
   const [loginVO, setLoginVO] = useState({});
@@ -95,6 +96,10 @@ function App() {
                 onChangeLogin={(user) => setLoginVO(user)}
               ></EgovLogin>
             </Route>
+
+            {/* EXC_PER_REP */}
+            <Redirect exact from={URL.EPR} to={URL.EXC_PER_REP}/>
+            <Route exact path={URL.EXC_PER_REP} component={ExcPerRepList}/>
 
             {/* ERROR */}
             <Route path={URL.ERROR} component={EgovError} />

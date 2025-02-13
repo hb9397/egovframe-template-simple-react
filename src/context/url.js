@@ -5,6 +5,10 @@ const URL = {
     
     LOGIN                       : "/login", //로그인
     ERROR                       : "/error", //로그인
+
+    //EPR
+    EPR                         : "/epr",
+    EXC_PER_REP                 : "/epr/excPerRep",
     
     //ABOUT
     ABOUT                       : "/about", //사이트소개   

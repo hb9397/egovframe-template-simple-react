@@ -24,6 +24,7 @@ export function requestFetch(url, requestOptions, handler, errorHandler) {
             return response.json();
         })
         .then((resp) => {
+            console.log(resp);
             if (Number(resp.resultCode) === Number(CODE.RCV_ERROR_AUTH)) {
                 alert("Login Alert");
                 window.location.href = URL.LOGIN;
