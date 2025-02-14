@@ -9,6 +9,10 @@ const URL = {
     //EPR
     EPR                         : "/epr",
     EXC_PER_REP                 : "/epr/excPerRep",
+
+    //EPM
+    EPM                         :"/epm",
+    EXC_PER_RCEPT               : "/epm/excPerRcept",
     
     //ABOUT
     ABOUT                       : "/about", //사이트소개   

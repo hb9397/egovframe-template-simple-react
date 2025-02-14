@@ -73,7 +73,12 @@ import './css/layout.css';
 import './css/component.css';
 import './css/page.css';
 import './css/response.css';
-import ExcPerRepList from "./egov/epr/ExcPerRepList";
+
+//EPR
+import ExcPerRepMngtList from "./egov/epr/ExcPerRepMngtList";
+
+//EPM
+import ExcPerRceptMngt from "./egov/epm/ExcPerRceptMngtList";
 
 function App() {
   const [loginVO, setLoginVO] = useState({});
@@ -99,7 +104,11 @@ function App() {
 
             {/* EXC_PER_REP */}
             <Redirect exact from={URL.EPR} to={URL.EXC_PER_REP}/>
-            <Route exact path={URL.EXC_PER_REP} component={ExcPerRepList}/>
+            <Route exact path={URL.EXC_PER_REP} component={ExcPerRepMngtList}/>
+
+            {/* EXC_PER_RCEPT */}
+            <Redirect exact from={URL.EPM} to={URL.EXC_PER_RCEPT}/>
+            <Route exact path={URL.EXC_PER_RCEPT} component={ExcPerRceptMngt}/>
 
             {/* ERROR */}
             <Route path={URL.ERROR} component={EgovError} />
