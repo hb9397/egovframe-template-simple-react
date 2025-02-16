@@ -1,6 +1,4 @@
 import React, {useState} from 'react';
-import EqpmnRepCreateModal from "./EqpmnRepCreateModal";
-import PerRepCreateModal from "./PerRepCreateModal";
 
 // 임시 데이터
 const eqpmnRepData = [
@@ -74,9 +72,9 @@ const perRepData = [
 ];
 
 // 페이지 네이션
-const itemsPerPage = 3;
+const itemsPerPage = 3
 
-const ExcPerRepDetailListModal = ({closeModal}) => {
+const ExcPerRceptDetailListModal = ({closeModal}) => {
 
     const modalOverlayStyle = {
         position: 'fixed',
@@ -97,9 +95,7 @@ const ExcPerRepDetailListModal = ({closeModal}) => {
         width: '100%',
         maxWidth: '1500px',
         maxHeight: '90vh',
-        borderRadius: '8px',
-        position: 'relative',
-        overflowY: 'auto',
+        borderRadius: '8px', position: 'relative', overflowY: 'auto',
         boxShadow: '0px 4px 6px rgba(0,0,0,0.1)',
     };
 
@@ -127,6 +123,7 @@ const ExcPerRepDetailListModal = ({closeModal}) => {
         height: '2rem',
         width: '2rem',
     };
+
     /*** 페이지 네이션 시작 ***/
     // 현재 페이지
     const [currentEqpmnRepPage, setCurrentEqpmnRepPage] = useState(1);
@@ -143,66 +140,12 @@ const ExcPerRepDetailListModal = ({closeModal}) => {
 
     /*** 페이지 네이션 끝 ***/
 
-    /*** 체크박스 시작 ***/
-
-    // 선택된 장비신고 체크박스 리스트
-    const [checkedEqpmnRepItems, setCheckedEqpmnRepItems] = useState([]);
-
-    // 개별 장비신고 체크박스 클릭 이벤트
-    const handleEqpmnRepCheckboxChange = (id) => {
-        setCheckedEqpmnRepItems((prev) => prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]);
-    };
-
-    // 전체 장비신고 체크박스 선택/해제
-    const handleSelectEqpmnRepAll = (e) => {
-        setCheckedEqpmnRepItems(e.target.checked ? eqpmnRepData.map((item) => item.id) : []);
-    };
-
-    // 선택된 실적신고 체크박스 리스트
-    const [checkedPerRepItems, setCheckedPerRepItems] = useState([]);
-
-    // 개별 실적신고 체크박스 클릭 이벤트
-    const handlePerRepCheckboxChange = (id) => {
-        setCheckedPerRepItems((prev) => prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]);
-    };
-
-    // 전체 실적신고 체크박스 선택/해제
-    const handleSelectPerRepAll = (e) => {
-        setCheckedPerRepItems(e.target.checked ? perRepData.map((item) => item.id) : []);
-    };
-
-    /*** 체크박스 끝 ***/
-
     /*** 연도 선택 셀렉트 박스 시작 ***/
-
-        // 년도 선택 셀렉트 박스
+    // 년도 선택 셀렉트 박스
     const currentYear = new Date().getFullYear();
     const years = Array.from({length: 10}, (_, i) => currentYear - 10 + i);
 
     /*** 연도 선택 셀렉트 박스 끝 ***/
-
-    /*** 모달 시작 ***/
-
-    const [secondModalStates, setSecondModalStates] = useState({
-        eqpmnRepCreateModal: false, perRepCreateModal: false,
-    }); // 모달 상태 관리
-
-    // 모달 열기
-    const openSecondModal = (modalName) => {
-        console.log(modalName)
-        setSecondModalStates((prevState) => ({
-            ...prevState, [modalName]: true,
-        }));
-    };
-
-    // 모달 닫기
-    const closeSecondModal = (modalName) => {
-        setSecondModalStates((prevState) => ({
-            ...prevState, [modalName]: false,
-        }));
-    };
-
-    /*** 모달 끝 ***/
 
     return (
         <div>
@@ -273,33 +216,10 @@ const ExcPerRepDetailListModal = ({closeModal}) => {
                                         alignItems: "center"
                                     }}>
                                         <div><h3>장비신고 목록</h3></div>
-                                        <div>
-                                            <button className="btn btn_blue_h46" style={{
-                                                height: "46px",
-                                                width: "100px",
-                                                textAlign: "center",
-                                                lineHeight: "46px",
-                                                background: "#169bd5",
-                                                color: "white",
-                                                borderRadius: "5px",
-                                                textDecoration: "none",
-                                                marginRight: "0.5rem",
-                                            }} onClick={() => openSecondModal('eqpmnRepCreateModal')}>
-                                                등록
-                                            </button>
-                                            <button style={closeButtonStyle} onClick={closeModal}>삭제</button>
-                                        </div>
 
                                     </div>
                                     <div className="board_list" style={{marginTop: "10px"}}>
                                         <div className="head">
-                                            <span>
-                                                <input
-                                                    type="checkbox"
-                                                    onChange={handleSelectEqpmnRepAll}
-                                                    checked={checkedEqpmnRepItems.length === eqpmnRepData.length}
-                                                />
-                                            </span>
                                             <span>장비일련번호</span>
                                             <span>장비 명</span>
                                             <span>규격</span>
@@ -311,14 +231,6 @@ const ExcPerRepDetailListModal = ({closeModal}) => {
                                             {currentEqpmnRepItems.length > 0 ? (
                                                 currentEqpmnRepItems.map((item) => (
                                                     <div key={item.id} className="list_item">
-                                                        <div>
-                                                            <input
-                                                                type="checkbox"
-                                                                value={item.id}
-                                                                checked={checkedEqpmnRepItems.includes(item.id)}
-                                                                onChange={() => handleEqpmnRepCheckboxChange(item.id)}
-                                                            />
-                                                        </div>
                                                         <div>{item.serialNumber}</div>
                                                         <div>{item.name}</div>
                                                         <div>{item.specification}</div>
@@ -392,32 +304,9 @@ const ExcPerRepDetailListModal = ({closeModal}) => {
                                         alignItems: "center"
                                     }}>
                                         <div><h3>실적신고 목록</h3></div>
-                                        <div>
-                                            <button className="btn btn_blue_h46" style={{
-                                                height: "46px",
-                                                width: "100px",
-                                                textAlign: "center",
-                                                lineHeight: "46px",
-                                                background: "#169bd5",
-                                                color: "white",
-                                                borderRadius: "5px",
-                                                textDecoration: "none",
-                                                marginRight: "0.5rem",
-                                            }} onClick={() => openSecondModal('perRepCreateModal')}>
-                                                등록
-                                            </button>
-                                            <button style={closeButtonStyle} onClick={closeModal}>삭제</button>
-                                        </div>
                                     </div>
                                     <div className="board_list" style={{marginTop: "10px"}}>
                                         <div className="head">
-                                            <span>
-                                                <input
-                                                    type="checkbox"
-                                                    onChange={handleSelectPerRepAll}
-                                                    checked={checkedPerRepItems.length === perRepData.length}
-                                                />
-                                            </span>
                                             <span>실적일련번호</span>
                                             <span>용역명</span>
                                             <span>용역구분명</span>
@@ -429,14 +318,6 @@ const ExcPerRepDetailListModal = ({closeModal}) => {
                                             {currentPerRepItems.length > 0 ? (
                                                 currentPerRepItems.map((item) => (
                                                     <div key={item.id} className="list_item">
-                                                        <div>
-                                                            <input
-                                                                type="checkbox"
-                                                                value={item.id}
-                                                                checked={checkedPerRepItems.includes(item.id)}
-                                                                onChange={() => handlePerRepCheckboxChange(item.id)}
-                                                            />
-                                                        </div>
                                                         <div>{item.serialNumber}</div>
                                                         <div>{item.projectName}</div>
                                                         <div>{item.projectType}</div>
@@ -516,18 +397,6 @@ const ExcPerRepDetailListModal = ({closeModal}) => {
                                     gap: "10px"
                                 }}>
                                     <button style={closeButtonStyle} onClick={closeModal}>닫기</button>
-                                    <button className="btn btn_blue_h46" style={{
-                                        height: "46px",
-                                        width: "100px",
-                                        textAlign: "center",
-                                        lineHeight: "46px",
-                                        background: "#169bd5",
-                                        color: "white",
-                                        borderRadius: "5px",
-                                        textDecoration: "none"
-                                    }}>
-                                        제출
-                                    </button>
                                 </div>
                             </div>
 
@@ -535,12 +404,8 @@ const ExcPerRepDetailListModal = ({closeModal}) => {
                     </div>
                 </div>
             </div>
-            {secondModalStates.eqpmnRepCreateModal &&
-                <EqpmnRepCreateModal closeSecondModal={() => closeSecondModal('eqpmnRepCreateModal')}/>}
-            {secondModalStates.perRepCreateModal &&
-                <PerRepCreateModal closeSecondModal={() => closeSecondModal('perRepCreateModal')}/>}
         </div>
     );
 };
 
-export default ExcPerRepDetailListModal;
+export default ExcPerRceptDetailListModal;

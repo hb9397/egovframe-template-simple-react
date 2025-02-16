@@ -28,13 +28,13 @@ const PerRepCreateModal = ({closeSecondModal}) => {
     const modalContentStyle = {
         background: 'white',
         padding: '20px',
-        width: '90%', // 기본적으로 넓게 설정
-        maxWidth: '1000px', // 최대 크기 제한
-        maxHeight: '80vh', // 화면의 80% 이상을 넘지 않도록 제한
+        width: '90%',
+        maxWidth: '1000px',
+        maxHeight: '80vh',
         borderRadius: '8px',
         position: 'relative',
-        overflowY: 'auto', // 내용이 많을 경우 스크롤 가능하도록
-        boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', // 그림자 추가
+        overflowY: 'auto',
+        boxShadow: '0px 4px 6px rgba(0,0,0,0.1)',
     };
 
     const closeButtonStyle = {

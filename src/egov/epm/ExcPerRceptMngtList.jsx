@@ -1,8 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {Link} from "react-router-dom";
 import {default as EgovLeftNav} from 'egov/common/leftmenu/EPMLeftExcPerRcept';
-import ExcPerRepCreateModal from "../epr/modal/ExcPerRepCreateModal";
-import ExcPerRepDetailListModal from "../epr/modal/ExcPerRepDetailListModal";
+import ExcPerRceptDetailListModal from "./modal/ExcPerRceptDetailListModal";
 
 // 임시 데이터
 const data = [{id: 3, year: 2021, taskName: "전자정부표준프레임워크 인스톨러 V1.037", status: "완료", updatedDate: "2021-07-24"}, {
@@ -20,7 +19,7 @@ const data = [{id: 3, year: 2021, taskName: "전자정부표준프레임워크 �
 },];
 
 // 페이지 네이션
-const itemsPerPage = 3; // 한 페이지당 표시할 개수
+const itemsPerPage = 3;
 
 const ExcPerRceptListMngt = () => {
 
@@ -77,7 +76,7 @@ const ExcPerRceptListMngt = () => {
     /*** 모달 시작 ***/
 
     const [modalStates, setModalStates] = useState({
-        createModal: false, detailModal: false,
+        detailModal: false,
     }); // 모달 상태 관리
 
     // 모달 열기
@@ -211,8 +210,8 @@ const ExcPerRceptListMngt = () => {
                                         checked={checkedItems.length === data.length}
                                     />
                                 </span>
-                                <span>수행년도</span>
-                                <span>수행 명</span>
+                                <span style={{width: '20%'}}>수행년도</span>
+                                <span style={{width: '40%'}}>수행 명</span>
                                 <span>진행상태</span>
                                 <span>수정일시</span>
                             </div>
@@ -227,9 +226,9 @@ const ExcPerRceptListMngt = () => {
                                                 onChange={() => handleCheckboxChange(item.id)}
                                             />
                                         </div>
-                                        <div style={{color: "blue", textDecoration: "underline", cursor: "pointer"}}
+                                        <div style={{color: "blue", textDecoration: "underline", cursor: "pointer", width: '20%'}}
                                              onClick={() => openModal('detailModal')}>{item.year}</div>
-                                        <div>{item.taskName}</div>
+                                        <div style={{width: '40%'}}>{item.taskName}</div>
                                         <div>{item.status}</div>
                                         <div>{item.updatedDate}</div>
                                     </div>)
@@ -290,9 +289,7 @@ const ExcPerRceptListMngt = () => {
                             </div>
                         </div>
                         {modalStates.detailModal &&
-                            <ExcPerRepDetailListModal closeModal={() => closeModal('detailModal')}/>}
-                        {modalStates.createModal &&
-                            <ExcPerRepCreateModal closeModal={() => closeModal('createModal')}/>}
+                            <ExcPerRceptDetailListModal closeModal={() => closeModal('detailModal')}/>}
                     </div>
                 </div>
             </div>

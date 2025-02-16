@@ -20,13 +20,13 @@ const ExcPerRepCreateModal = ({closeModal}) => {
     const modalContentStyle = {
         background: 'white',
         padding: '20px',
-        width: '90%', // 기본적으로 넓게 설정
-        maxWidth: '1000px', // 최대 크기 제한
-        maxHeight: '80vh', // 화면의 80% 이상을 넘지 않도록 제한
+        width: '90%',
+        maxWidth: '1000px',
+        maxHeight: '80vh',
         borderRadius: '8px',
         position: 'relative',
-        overflowY: 'auto', // 내용이 많을 경우 스크롤 가능하도록
-        boxShadow: '0px 4px 6px rgba(0,0,0,0.1)', // 그림자 추가
+        overflowY: 'auto',
+        boxShadow: '0px 4px 6px rgba(0,0,0,0.1)',
     };
 
     const closeButtonStyle = {
@@ -99,73 +99,7 @@ const ExcPerRepCreateModal = ({closeModal}) => {
                                         </dd>
                                     </dl>
                                 </div>
-
-                                {/*<div className="info">
-                                    <dl>
-                                        <dt>작성자</dt>
-                                        <dd>innovate</dd>
-                                    </dl>
-                                    <dl>
-                                        <dt>작성일</dt>
-                                        <dd>2011-08-01 23:22:11</dd>
-                                    </dl>
-                                </div>*/}
-
-                                {/*<div className="info2">
-                                    <div className="left_col">
-                                        <img src="/assets/images/sample_pds_list.png" alt=""/>
-                                        <p className="guide">
-                                            썸네일 이미지는<br/>
-                                            width : 160px, height : 109px<br/>
-                                            크기의 이미지를 올려주세요
-                                        </p>
-                                    </div>
-                                    <div className="right_col">
-                                        <dl>
-                                            <dt><label htmlFor="ip1">운영체제</label></dt>
-                                            <dd>
-                                                <input className="f_input2 w_full" type="text" name="writer"
-                                                       id="ip1"/>
-                                            </dd>
-                                        </dl>
-                                        <dl>
-                                            <dt><label htmlFor="ip2">권장사양</label></dt>
-                                            <dd>
-                                                <input className="f_input2 w_full" type="text" name="writer"
-                                                       id="ip2"/>
-                                            </dd>
-                                        </dl>
-                                        <dl>
-                                            <dt><label htmlFor="ip4">파일정보</label></dt>
-                                            <dd>
-                                                <input className="w_full" type="file" name="" id="ip4"/>
-                                            </dd>
-                                        </dl>
-                                        <dl>
-                                            <dt><label htmlFor="ip5">등록일자</label></dt>
-                                            <dd>
-                                                <input className="f_input2 w_full" type="text" name="writer"
-                                                       id="ip5"/>
-                                            </dd>
-                                        </dl>
-                                        <dl>
-                                            <dt><label htmlFor="ip6">언어</label></dt>
-                                            <dd>
-                                                <input className="f_input2 w_full" type="text" name="writer"
-                                                       id="ip6"/>
-                                            </dd>
-                                        </dl>
-                                    </div>
-                                </div>*/}
                             </div>
-                            {/* <!--// 상세 --> */}
-
-                            {/*<h3 className="tit_5"><label htmlFor="pdsnm">자료설명 입력</label></h3>
-
-                            <div className="pds_desc_edit">
-                                            <textarea className="f_txtar w_full" name="" id="pdsnm" cols="30"
-                                                      rows="10"></textarea>
-                            </div>*/}
 
                             {/* <!-- 버튼영역 --> */}
                             <div className="board_btn_area" style={{marginTop: "10px"}}>
