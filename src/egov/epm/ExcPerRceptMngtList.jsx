@@ -38,7 +38,7 @@ const ExcPerRceptListMngt = () => {
 
     /*** 페이지 네이션 시작 ***/
 
-        // 현재 페이지
+    // 현재 페이지
     const [currentPage, setCurrentPage] = useState(1);
 
     // 총 페이지 수 계산

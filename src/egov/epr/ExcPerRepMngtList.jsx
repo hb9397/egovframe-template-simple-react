@@ -6,6 +6,8 @@ import ExcPerRepDetailListModal from "./modal/ExcPerRepDetailListModal";
 
 import * as EgovNet from 'context/egovFetch';
 
+/*** useEffect, useState 만 사용한 데이터 조회 ***/
+
 const ExcPerRepMngtList = () => {
 
     /*** 데이터 검색 조건 시작***/
@@ -18,9 +20,9 @@ const ExcPerRepMngtList = () => {
         });
 
     // 검색 조건 상태 변경
-    const handleSearchCondition = (e) => {
+    const handleSearchCondition = async (e) => {
         const { name, value } = e.target;
-        setSearchCondition((prevState) => ({
+        await setSearchCondition((prevState) => ({
             ...prevState,
             [name]: value,
         }));
@@ -42,8 +44,6 @@ const ExcPerRepMngtList = () => {
 
     /*** 데이터 list 불러오기 시작 ***/
     const selectExcPerRepList = async (searchCondition) => {
-        console.groupCollapsed('selectExcPerRepList');
-
         const apiUrl = "/api/v1/epr/excPerRepList.do";
 
         const requestOptions = {
@@ -51,7 +51,7 @@ const ExcPerRepMngtList = () => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({searchCondition})
+            body: JSON.stringify(searchCondition)
         }
 
         await EgovNet.requestFetch(apiUrl,
@@ -98,9 +98,8 @@ const ExcPerRepMngtList = () => {
 
     /*** 모달 끝 ***/
 
-    useEffect(() => {
-        console.log("handleSearchCondition-1: " + searchCondition.pageIndex);
-        selectExcPerRepList(searchCondition);
+    useEffect( () => {
+        selectExcPerRepList(searchCondition)
     }, [searchCondition.pageIndex]);
 
 
@@ -146,7 +145,9 @@ const ExcPerRepMngtList = () => {
                                 </li>
                                 <li className="third_1 L">
                                     <label className="f_select w_500" htmlFor="year_select">
-                                        <select name="year_select" id="year_select">
+                                        <select name="year_select" id="year_select"
+                                                onChange={
+                                                    (e) => handleSearchCondition({ target: { name: 'searchExcDate', value: e.target.value } })}>
                                             <option value="">선택안함</option>
                                             {years.map((year) => (<option key={year} value={year}>
                                                 {year}
@@ -167,16 +168,16 @@ const ExcPerRepMngtList = () => {
                                     </p>
                                 </li>
                                 <li className="third_2 R">
-                                    {/* <!-- 210806 수정 --> */}
                                     <span className="f_search w_500">
-                                        <input type="text" name="" placeholder=""/>
+                                        <input type="text" name="" placeholder="" onChange={(e) => handleSearchCondition({target: { name: 'searchExcPerRepName', value: e.target.value } })} />
                                     </span>
                                 </li>
                             </ul>
                             <ul className="mt10" style={{width: "71%"}}>
                                 <li className="w_full">
                                     <button
-                                        className="btn btn_blue_h46 pd35 w_full">검색
+                                        className="btn btn_blue_h46 pd35 w_full"
+                                        onClick={() => selectExcPerRepList(searchCondition)}>검색
                                     </button>
                                 </li>
                             </ul>
@@ -227,7 +228,6 @@ const ExcPerRepMngtList = () => {
                             <div className="board_bot">
                                 <div className="paging">
                                     <ul>
-                                        {/* "처음" - First page button */}
                                         <li className="btn">
                                             <button disabled={searchCondition.pageIndex === 1}
                                                     onClick={(e) => handleSearchCondition({ target: { name: 'pageIndex', value: 1 } })}
@@ -236,7 +236,6 @@ const ExcPerRepMngtList = () => {
                                             </button>
                                         </li>
 
-                                        {/* "이전" - Previous page button */}
                                         <li className="btn">
                                             <button disabled={searchCondition.pageIndex === 1}
                                                     onClick={(e) => handleSearchCondition({ target: { name: 'pageIndex', value: Math.max(searchCondition.pageIndex - 1, 1) } })}
@@ -254,7 +253,6 @@ const ExcPerRepMngtList = () => {
                                             </button>
                                         </li>))}
 
-                                        {/* "다음" - Next page button */}
                                         <li className="btn">
                                             <button disabled={searchCondition.pageIndex === paginationInfo?.totalPageCount}
                                                     onClick={(e) => handleSearchCondition({ target: { name: 'pageIndex', value: Math.min(searchCondition.pageIndex + 1, paginationInfo?.totalPageCount) } })}
@@ -263,7 +261,6 @@ const ExcPerRepMngtList = () => {
                                             </button>
                                         </li>
 
-                                        {/* "마지막" - Last page button */}
                                         <li className="btn">
                                             <button disabled={searchCondition.pageIndex === paginationInfo?.totalPageCount}
                                                     onClick={(e) => handleSearchCondition({ target: { name: 'pageIndex', value: paginationInfo?.totalPageCount } })}

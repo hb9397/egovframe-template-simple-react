@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 import URL from 'context/url';
 import CODE from 'context/code';
@@ -80,10 +81,13 @@ import ExcPerRepMngtList from "./egov/epr/ExcPerRepMngtList";
 //EPM
 import ExcPerRceptMngt from "./egov/epm/ExcPerRceptMngtList";
 
+const queryClient = new QueryClient();
+
 function App() {
   const [loginVO, setLoginVO] = useState({});
   return (
     <div className="wrap">
+      <QueryClientProvider client={queryClient}>
       <Switch>
         <Route exact path={URL.ERROR} component={EgovError} />
         <Route>
@@ -193,7 +197,7 @@ function App() {
           <EgovInfoPopup></EgovInfoPopup>
         </Route>
       </Switch>
-
+      </QueryClientProvider>
     </div>
   )
 }
