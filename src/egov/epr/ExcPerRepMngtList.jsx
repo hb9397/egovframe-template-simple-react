@@ -1,40 +1,73 @@
 import React, {useState, useEffect} from 'react';
 import {Link} from "react-router-dom";
-import URL from "../../context/url";
 import {default as EgovLeftNav} from 'egov/common/leftmenu/EPRLeftExcPerRep';
 import ExcPerRepCreateModal from "./modal/ExcPerRepCreateModal";
 import ExcPerRepDetailListModal from "./modal/ExcPerRepDetailListModal";
 
-// 임시 데이터
-const data = [{id: 3, year: 2021, taskName: "전자정부표준프레임워크 인스톨러 V1.037", status: "완료", updatedDate: "2021-07-24"}, {
-    id: 2,
-    year: 2021,
-    taskName: "전자정부표준프레임워크 인스톨러 V1.037",
-    status: "진행중",
-    updatedDate: "2021-07-24"
-}, {id: 1, year: 2021, taskName: "전자정부표준프레임워크 인스톨러 V1.037", status: "대기", updatedDate: "2021-07-24"}, {
-    id: 0,
-    year: 2022,
-    taskName: "테스트 소프트웨어",
-    status: "완료",
-    updatedDate: "2022-01-10"
-},];
-
-// 페이지 네이션
-const itemsPerPage = 3;
+import * as EgovNet from 'context/egovFetch';
 
 const ExcPerRepMngtList = () => {
-    /*** 페이지 네이션 시작 ***/
-    // 현재 페이지
-    const [currentPage, setCurrentPage] = useState(1);
 
-    // 총 페이지 수 계산
-    const totalPages = Math.ceil(data.length / itemsPerPage);
+    /*** 데이터 검색 조건 시작***/
+    // 검색 조건 상태 값
+    const [searchCondition, setSearchCondition] = useState({
+            searchExcPerRepName: '', // 용역명
+            searchExcDate: '',       // 수행일자
+            pageIndex: 1,            // 현재(요청한)페이지
+            pageUnit: 10,            // 페이지 크기
+        });
 
-    // 현재 페이지에 해당하는 데이터 필터링
-    const currentItems = data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    // 검색 조건 상태 변경
+    const handleSearchCondition = (e) => {
+        const { name, value } = e.target;
+        setSearchCondition((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    }
+    /*** 데이터 검색 조건 끝 ***/
 
-    /*** 페이지 네이션 끝 ***/
+    /*** 페이지 네이션 + 데이터 시작 ***/
+
+    // 페이지 네이션 정보
+    const [paginationInfo, setPaginationInfo] = useState({});
+
+    // 데이터 정보
+    const [list, setList] = useState({});
+
+    // user 정보
+    const [user, setUser] = useState({});
+
+    /*** 페이지 네이션 + 데이터 끝 ***/
+
+    /*** 데이터 list 불러오기 시작 ***/
+    const selectExcPerRepList = async (searchCondition) => {
+        console.groupCollapsed('selectExcPerRepList');
+
+        const apiUrl = "/api/v1/epr/excPerRepList.do";
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({searchCondition})
+        }
+
+        await EgovNet.requestFetch(apiUrl,
+            requestOptions,
+            (res)=>{
+                setUser(res.result?.user);
+                setPaginationInfo(res.result?.paginationInfo);
+                setList(res.result?.list);
+            },
+            (err) => {
+                console.log("err response : ", err);
+            })
+        console.groupEnd("selectExcPerRepList");
+    }
+
+    /*** 데이터 list 불러오기 끝 ***/
 
     /*** 연도 셀렉트 박스 시작 ***/
 
@@ -64,6 +97,11 @@ const ExcPerRepMngtList = () => {
     };
 
     /*** 모달 끝 ***/
+
+    useEffect(() => {
+        console.log("handleSearchCondition-1: " + searchCondition.pageIndex);
+        selectExcPerRepList(searchCondition);
+    }, [searchCondition.pageIndex]);
 
 
     return (
@@ -172,13 +210,13 @@ const ExcPerRepMngtList = () => {
                                 <span>수정일시</span>
                             </div>
                             <div className="result">
-                                {currentItems.length > 0 ? (currentItems.map((item) => (
-                                    <div key={item.id} className="list_item">
+                                {list && list.length > 0 ? (list.map((item) => (
+                                    <div key={item.excPerRepSeq} className="list_item">
                                         <div style={{color: "blue", textDecoration: "underline", cursor: "pointer"}}
-                                             onClick={() => openModal('detailModal')}>{item.year}</div>
-                                        <div>{item.taskName}</div>
-                                        <div>{item.status}</div>
-                                        <div>{item.updatedDate}</div>
+                                             onClick={() => openModal('detailModal')}>{item.excDate}</div>
+                                        <div>{item.excPerRepName}</div>
+                                        <div>{item.progrsStatName}</div>
+                                        <div>{item.cngDate}</div>
                                     </div>)
                                 )) : (
                                     <p className="no_data">검색된 결과가 없습니다.</p>
@@ -191,7 +229,8 @@ const ExcPerRepMngtList = () => {
                                     <ul>
                                         {/* "처음" - First page button */}
                                         <li className="btn">
-                                            <button disabled={currentPage === 1} onClick={() => setCurrentPage(1)}
+                                            <button disabled={searchCondition.pageIndex === 1}
+                                                    onClick={(e) => handleSearchCondition({ target: { name: 'pageIndex', value: 1 } })}
                                                     className="first">
                                                 처음
                                             </button>
@@ -199,18 +238,17 @@ const ExcPerRepMngtList = () => {
 
                                         {/* "이전" - Previous page button */}
                                         <li className="btn">
-                                            <button disabled={currentPage === 1}
-                                                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                            <button disabled={searchCondition.pageIndex === 1}
+                                                    onClick={(e) => handleSearchCondition({ target: { name: 'pageIndex', value: Math.max(searchCondition.pageIndex - 1, 1) } })}
                                                     className="prev">
                                                 이전
                                             </button>
                                         </li>
 
-                                        {/* Pagination buttons for each page */}
-                                        {Array.from({length: totalPages}, (_, i) => (<li key={i}>
+                                        {Array.from({length: paginationInfo?.totalPageCount}, (_, i) => (<li key={i}>
                                             <button
-                                                className={currentPage === i + 1 ? "cur" : ""}
-                                                onClick={() => setCurrentPage(i + 1)}
+                                                className={searchCondition.pageIndex === i + 1 ? "cur" : ""}
+                                                onClick={(e) => handleSearchCondition({ target: { name: 'pageIndex', value: i + 1 } })}
                                             >
                                                 {i + 1}
                                             </button>
@@ -218,8 +256,8 @@ const ExcPerRepMngtList = () => {
 
                                         {/* "다음" - Next page button */}
                                         <li className="btn">
-                                            <button disabled={currentPage === totalPages}
-                                                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                            <button disabled={searchCondition.pageIndex === paginationInfo?.totalPageCount}
+                                                    onClick={(e) => handleSearchCondition({ target: { name: 'pageIndex', value: Math.min(searchCondition.pageIndex + 1, paginationInfo?.totalPageCount) } })}
                                                     className="next">
                                                 다음
                                             </button>
@@ -227,8 +265,9 @@ const ExcPerRepMngtList = () => {
 
                                         {/* "마지막" - Last page button */}
                                         <li className="btn">
-                                            <button disabled={currentPage === totalPages}
-                                                    onClick={() => setCurrentPage(totalPages)} className="last">
+                                            <button disabled={searchCondition.pageIndex === paginationInfo?.totalPageCount}
+                                                    onClick={(e) => handleSearchCondition({ target: { name: 'pageIndex', value: paginationInfo?.totalPageCount } })}
+                                                    className="last">
                                                 마지막
                                             </button>
                                         </li>
