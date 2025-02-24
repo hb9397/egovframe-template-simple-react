@@ -11,7 +11,7 @@ import * as EgovNet from 'context/egovFetch';
 const ExcPerRepMngtList = () => {
 
     /*** 데이터 검색 조건 시작***/
-        // 검색 조건 상태 값
+    // 검색 조건 상태 값
     const [searchCondition, setSearchCondition] = useState({
             searchExcPerRepName: '', // 용역명
             searchExcDate: '',       // 수행일자
@@ -30,7 +30,7 @@ const ExcPerRepMngtList = () => {
     /*** 데이터 검색 조건 끝 ***/
 
     /*** 페이지 네이션 + 데이터 시작 ***/
-        // 페이지 네이션 정보
+    // 페이지 네이션 정보
     const [paginationInfo, setPaginationInfo] = useState({});
 
     // 데이터 정보
@@ -88,9 +88,12 @@ const ExcPerRepMngtList = () => {
     }); // 모달 상태 관리
 
     // 모달 열기
-    const openModal = (modalName) => {
+    const openModal = (modalName, excPerRepSeq) => {
+        setExcPerRepSeq(excPerRepSeq);
+
         setModalStates((prevState) => ({
-            ...prevState, [modalName]: true,
+            ...prevState,
+            [modalName]: true,
         }));
     };
 
@@ -100,6 +103,9 @@ const ExcPerRepMngtList = () => {
             ...prevState, [modalName]: false,
         }));
     };
+
+    // 디테일 모달 키
+    const [excPerRepSeq, setExcPerRepSeq] = useState();
     /*** 모달 끝 ***/
 
     /*** 페이지네이션 시, 조회 설정 시작 ***/
@@ -143,7 +149,6 @@ const ExcPerRepMngtList = () => {
                                     {/* <!-- 210806 수정 --> */}
                                     <p style={{
                                         padding: '1rem 1.9rem', color: '#454545', fontSize: '20px', lineHeight: '1rem',
-
                                     }}>
                                         수행년도
                                     </p>
@@ -230,7 +235,7 @@ const ExcPerRepMngtList = () => {
                                 {list && list.length > 0 ? (list.map((item) => (
                                     <div key={item.excPerRepSeq} className="list_item">
                                         <div style={{color: "blue", textDecoration: "underline", cursor: "pointer"}}
-                                             onClick={() => openModal('detailModal')}>{item.excDate}</div>
+                                             onClick={() => openModal('detailModal', item.excPerRepSeq)}>{item.excDate}</div>
                                         <div>{item.excPerRepName}</div>
                                         <div>{item.progrsStatName}</div>
                                         <div>{item.cngDate}</div>
@@ -316,7 +321,7 @@ const ExcPerRepMngtList = () => {
                             </div>
                         </div>
                         {modalStates.detailModal &&
-                            <ExcPerRepDetailListModal closeModal={() => closeModal('detailModal')}/>}
+                            <ExcPerRepDetailListModal closeModal={() => closeModal('detailModal')} excPerRepSeq={excPerRepSeq}/>}
                         {modalStates.createModal &&
                             <ExcPerRepCreateModal closeModal={() => closeModal('createModal')}/>}
                     </div>

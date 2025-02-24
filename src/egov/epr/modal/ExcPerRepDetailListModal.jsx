@@ -76,7 +76,9 @@ const perRepData = [
 // 페이지 네이션
 const itemsPerPage = 3;
 
-const ExcPerRepDetailListModal = ({closeModal}) => {
+const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
+
+    console.log(excPerRepSeq);
 
     const modalOverlayStyle = {
         position: 'fixed',
@@ -175,7 +177,7 @@ const ExcPerRepDetailListModal = ({closeModal}) => {
 
     /*** 연도 선택 셀렉트 박스 시작 ***/
 
-        // 년도 선택 셀렉트 박스
+    // 년도 선택 셀렉트 박스
     const currentYear = new Date().getFullYear();
     const years = Array.from({length: 10}, (_, i) => currentYear - 10 + i);
 
