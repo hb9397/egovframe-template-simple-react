@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {Link} from "react-router-dom";
 import URL from "../../../context/url";
+import * as EgovNet from "../../../context/egovFetch";
 
 const ExcPerRepCreateModal = ({closeModal}) => {
 
@@ -54,10 +55,55 @@ const ExcPerRepCreateModal = ({closeModal}) => {
         width: '2rem',
     };
 
-    // 년도 선택 셀렉트 박스
+    /*** User 정보 ***/
+    const [user, setUser] = useState({});
+
+    /*** 연도 셀렉트 박스 시작 ***/
     const currentYear = new Date().getFullYear();
     const years = Array.from({length: 10}, (_, i) => currentYear - 10 + i);
+    /*** 연도 셀렉트 박스 끝 ***/
 
+
+    /*** 등록 데이터 시작***/
+    const [createData, setCreateData] = useState({
+        excDate: '', // 수행일자
+        excPerRepName: ''  // 수행 실적 신고 명
+    })
+
+    const handelCreateData = async (e) => {
+        const { name, value } = e.target;
+        await setCreateData((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }))
+    }
+
+    /*** 데이터 등록 시작***/
+    const createExcPerRep = async () => {
+        const apiUrl = "/api/v1/epr/insertExcPerRep.do";
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(createData)
+        }
+
+        await EgovNet.requestFetch(apiUrl,
+            requestOptions,
+            (res)=>{
+                setUser(res.result?.user);
+                alert("등록되었습니다.")
+                closeModal();
+                window.location.reload();
+            },
+            (err) => {
+                console.log("err response : ", err);
+            })
+        console.groupEnd("createExcPerRep");
+    }
+    /*** 데이터 등록 끝 ***/
 
     return (
         <div>
@@ -78,7 +124,9 @@ const ExcPerRepCreateModal = ({closeModal}) => {
                                         <dt><label htmlFor="writer">수행년도</label></dt>
                                         <dd>
                                             <label className="f_select w_full" htmlFor="year_select">
-                                                <select name="year_select" id="year_select">
+                                                <select name="year_select" id="year_select" onChange={
+                                                    (e) => handelCreateData({target: {name: 'excDate', value: e.target.value}})
+                                                }>
                                                     <option value="">선택안함</option>
                                                     {years.map((year) => (
                                                         <option key={year} value={year}>
@@ -95,7 +143,8 @@ const ExcPerRepCreateModal = ({closeModal}) => {
                                         <dt><label htmlFor="writer">수행 명</label></dt>
                                         <dd>
                                             <input className="f_input2 w_full" type="text" name="writer"
-                                                   id="writer"/>
+                                                   id="writer"
+                                            onChange={(e) => handelCreateData({target: {name: 'excPerRepName', value: e.target.value}})}/>
                                         </dd>
                                     </dl>
                                 </div>
@@ -107,11 +156,10 @@ const ExcPerRepCreateModal = ({closeModal}) => {
                                 </div>
                                 <div className="board_btn_area" style={{ marginTop: "10px", display: "flex", justifyContent: "center", gap: "10px" }}>
                                     <button style={closeButtonStyle} onClick={closeModal}>닫기</button>
-                                    <button className="btn btn_blue_h46" style={{ height: "46px", width: "100px", textAlign: "center", lineHeight: "46px", background: "#169bd5", color: "white", borderRadius: "5px", textDecoration: "none" }}>
+                                    <button onClick={() => createExcPerRep()} className="btn btn_blue_h46" style={{ height: "46px", width: "100px", textAlign: "center", lineHeight: "46px", background: "#169bd5", color: "white", borderRadius: "5px", textDecoration: "none" }}>
                                         등록
                                     </button>
                                 </div>
-
                             </div>
                         </div>
                     </div>
