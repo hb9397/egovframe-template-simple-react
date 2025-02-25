@@ -9,27 +9,7 @@ import * as EgovNet from 'context/egovFetch';
 /*** useEffect, useState 만 사용한 데이터 조회 ***/
 
 const ExcPerRepMngtList = () => {
-
-    /*** 데이터 검색 조건 시작***/
-    // 검색 조건 상태 값
-    const [searchCondition, setSearchCondition] = useState({
-            searchExcPerRepName: '', // 용역명
-            searchExcDate: '',       // 수행일자
-            pageIndex: 1,            // 현재(요청한)페이지
-            pageUnit: 10,            // 페이지 크기
-        });
-
-    // 검색 조건 상태 변경
-    const handleSearchCondition = async (e) => {
-        const {name, value} = e.target;
-        await setSearchCondition((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
-    }
-    /*** 데이터 검색 조건 끝 ***/
-
-    /*** 페이지 네이션 + 데이터 시작 ***/
+    /*** 페이지 네이션 + 데이터 정보 시작 ***/
     // 페이지 네이션 정보
     const [paginationInfo, setPaginationInfo] = useState({});
 
@@ -40,7 +20,27 @@ const ExcPerRepMngtList = () => {
     const [user, setUser] = useState({});
     /*** 페이지 네이션 + 데이터 끝 ***/
 
-    /*** 데이터 list 불러오기 시작 ***/
+
+    /*** 데이터 검색 조건 시작***/
+        // 검색 조건 상태 값
+    const [searchCondition, setSearchCondition] = useState({
+            searchExcPerRepName: '', // 용역명
+            searchExcDate: '',       // 수행일자
+            pageIndex: 1,            // 현재(요청한)페이지
+            pageUnit: 10,            // 페이지 크기
+        });
+
+    // 검색 조건 상태 변경
+    const handleSearchCondition = (e) => {
+        const {name, value} = e.target;
+        setSearchCondition((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    }
+    /*** 데이터 검색 조건 끝 ***/
+
+    /*** 데이터 list 불러오기 정보 시작 ***/
     const selectExcPerRepList = async () => {
         const apiUrl = "/api/v1/epr/excPerRepList.do";
 
@@ -52,6 +52,8 @@ const ExcPerRepMngtList = () => {
             body: JSON.stringify(searchCondition)
         }
 
+
+
         await EgovNet.requestFetch(apiUrl,
             requestOptions,
             (res) => {
@@ -62,7 +64,7 @@ const ExcPerRepMngtList = () => {
             (err) => {
                 console.log("err response : ", err);
             })
-        console.groupEnd("selectExcPerRepList");
+        console.groupEnd("selectExcPerRepList")
     }
     /*** 데이터 list 불러오기 끝 ***/
 
@@ -70,6 +72,12 @@ const ExcPerRepMngtList = () => {
     const currentYear = new Date().getFullYear();
     const years = Array.from({length: 10}, (_, i) => currentYear - 10 + i);
     /*** 연도 셀렉트 박스 끝 ***/
+
+    /*** 데이터 최초 조회 및 페이지네이션 시, 데이터 조회 시작 ***/
+    useEffect(() => {
+        selectExcPerRepList();
+    }, [searchCondition.pageIndex]);
+    /*** 데이터 최초 조회 및 페이지네이션 시, 데이터 조회 끝 ***/
 
     /*** 검색 버튼  이벤트 시작 ***/
     const onClickSearchBtn = async () => {
@@ -88,31 +96,24 @@ const ExcPerRepMngtList = () => {
     }); // 모달 상태 관리
 
     // 모달 열기
-    const openModal = (modalName, excPerRepSeq) => {
-        setExcPerRepSeq(excPerRepSeq);
+    const openModal = (modalName, curExcPerRep) => {
+        setSelectedExcPerRep(curExcPerRep);
 
         setModalStates((prevState) => ({
             ...prevState,
             [modalName]: true,
         }));
     };
-
     // 모달 닫기
     const closeModal = (modalName) => {
         setModalStates((prevState) => ({
             ...prevState, [modalName]: false,
         }));
     };
-
-    // 디테일 모달 키
-    const [excPerRepSeq, setExcPerRepSeq] = useState();
+    // 디테일 모달 키값
+    const [selectedExcPerRep, setSelectedExcPerRep] = useState({});
     /*** 모달 끝 ***/
 
-    /*** 페이지네이션 시, 조회 설정 시작 ***/
-    useEffect(() => {
-        selectExcPerRepList();
-    }, [searchCondition.pageIndex]);
-    /*** 페이지네이션 시, 조회 설정 끝 ***/
 
     return (
         <div className="container">
@@ -235,7 +236,7 @@ const ExcPerRepMngtList = () => {
                                 {list && list.length > 0 ? (list.map((item) => (
                                     <div key={item.excPerRepSeq} className="list_item">
                                         <div style={{color: "blue", textDecoration: "underline", cursor: "pointer"}}
-                                             onClick={() => openModal('detailModal', item.excPerRepSeq)}>{item.excDate}</div>
+                                             onClick={() => openModal('detailModal', item)}>{item.excDate}</div>
                                         <div>{item.excPerRepName}</div>
                                         <div>{item.progrsStatName}</div>
                                         <div>{item.cngDate}</div>
@@ -275,7 +276,7 @@ const ExcPerRepMngtList = () => {
                                             </button>
                                         </li>
 
-                                        {Array.from({length: paginationInfo?.totalPageCount}, (_, i) => (<li key={i}>
+                                        {Array.from({length: paginationInfo.totalPageCount}, (_, i) => (<li key={i}>
                                             <button
                                                 className={searchCondition.pageIndex === i + 1 ? "cur" : ""}
                                                 onClick={(e) => handleSearchCondition({
@@ -291,11 +292,11 @@ const ExcPerRepMngtList = () => {
 
                                         <li className="btn">
                                             <button
-                                                disabled={searchCondition.pageIndex === paginationInfo?.totalPageCount}
+                                                disabled={searchCondition.pageIndex === paginationInfo.totalPageCount}
                                                 onClick={(e) => handleSearchCondition({
                                                     target: {
                                                         name: 'pageIndex',
-                                                        value: Math.min(searchCondition.pageIndex + 1, paginationInfo?.totalPageCount)
+                                                        value: Math.min(searchCondition.pageIndex + 1, paginationInfo.totalPageCount)
                                                     }
                                                 })}
                                                 className="next">
@@ -305,11 +306,11 @@ const ExcPerRepMngtList = () => {
 
                                         <li className="btn">
                                             <button
-                                                disabled={searchCondition.pageIndex === paginationInfo?.totalPageCount}
+                                                disabled={searchCondition.pageIndex === paginationInfo.totalPageCount}
                                                 onClick={(e) => handleSearchCondition({
                                                     target: {
                                                         name: 'pageIndex',
-                                                        value: paginationInfo?.totalPageCount
+                                                        value: paginationInfo.totalPageCount
                                                     }
                                                 })}
                                                 className="last">
@@ -321,7 +322,7 @@ const ExcPerRepMngtList = () => {
                             </div>
                         </div>
                         {modalStates.detailModal &&
-                            <ExcPerRepDetailListModal closeModal={() => closeModal('detailModal')} excPerRepSeq={excPerRepSeq}/>}
+                            <ExcPerRepDetailListModal closeModal={() => closeModal('detailModal')} excPerRep={selectedExcPerRep}/>}
                         {modalStates.createModal &&
                             <ExcPerRepCreateModal closeModal={() => closeModal('createModal')}/>}
                     </div>

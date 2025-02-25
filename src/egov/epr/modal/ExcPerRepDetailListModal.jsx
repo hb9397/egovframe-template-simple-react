@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import EqpmnRepCreateModal from "./EqpmnRepCreateModal";
 import PerRepCreateModal from "./PerRepCreateModal";
+import * as EgovNet from "../../../context/egovFetch";
 
 // 임시 데이터
 const eqpmnRepData = [
@@ -73,12 +74,7 @@ const perRepData = [
     },
 ];
 
-// 페이지 네이션
-const itemsPerPage = 3;
-
-const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
-
-    console.log(excPerRepSeq);
+const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
 
     const modalOverlayStyle = {
         position: 'fixed',
@@ -129,24 +125,119 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
         height: '2rem',
         width: '2rem',
     };
-    /*** 페이지 네이션 시작 ***/
-    // 현재 페이지
-    const [currentEqpmnRepPage, setCurrentEqpmnRepPage] = useState(1);
-    const [currentPerRepPage, setCurrentPerRepPage] = useState(1);
 
-    // 실적신고 목록 총 페이지 수 계산
-    const totalEqmnRepPages = Math.ceil(eqpmnRepData.length / itemsPerPage);
-    const totalPerRepPages = Math.ceil(perRepData.length / itemsPerPage);
+    /*** 페이지 네이션 정보 + 데이터 정보 시작 ***/
+    // 장비 현재 페이지네이션 정보
+    const [eqpmnRepPaginationInfo, setEqpmnRepPaginationInfo] = useState({});
+    // 실적 현재 페이지네이션 정보
+    const [perRepPaginationInfo, setPerRepPaginationInfo] = useState({});
 
+    // 장비신고 목록
+    const [eqpmnRepList, setEqpmnRepList] = useState({});
+    // 실적 목록
+    const [perRepList, setPerRepList] = useState({});
+    /*** 페이지 네이션 정보 + 데이터 정보 끝 ***/
 
-    // 현재 페이지에 해당하는 데이터 필터링
-    const currentEqpmnRepItems = eqpmnRepData.slice((currentEqpmnRepPage - 1) * itemsPerPage, currentEqpmnRepPage * itemsPerPage);
-    const currentPerRepItems = perRepData.slice((currentPerRepPage - 1) * itemsPerPage, currentPerRepPage * itemsPerPage);
+    /*** 데이터 조회 조건 시작***/
+    // 장비
+    const [inquiryEqpmnRepCondition, setInquiryEqpmnRepCondition] = useState({
+            inquiryExcPerRepSeq: Number(excPerRep?.excPerRepSeq),
+            pageIndex: 1,
+            pageUnit: 5,
+    });
+    // 실적
+    const [inquiryPerRepCondition, setInquiryPerRepCondition] = useState({
+        inquiryExcPerRepSeq: Number(excPerRep?.excPerRepSeq),
+        pageIndex: 1,
+        pageUnit: 5,
+    });
+    /** 아래의 Handle 메서드들의 경우 event 를 직접받는 형태가 아닌 name, value 를 받아서 사용하도록 하거나 useCallback 으로 더 직관적으로 사용할 수 도 있음 **/
+    // 장비조회 조건 상태 변경
+    const handleInquiryEqpmnRepCondition = (e) => {
+        const { name, value } = e.target;
 
-    /*** 페이지 네이션 끝 ***/
+        setInquiryEqpmnRepCondition((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }))
+    }
+    // 실적조회 조건 상태 변경
+    const handleInquiryPerRepCondition = (e) => {
+        const { name, value } = e.target;
+
+        setInquiryPerRepCondition((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }))
+    }
+    /*** 데이터 조회 조건 끝 ***/
+
+    /*** 데이터 list 불러오기 시작 ***/
+    // 장비
+    const selectEqpmnRepList = async () => {
+            const apiUrl = "/api/v1/epr/eqpmnRepList.do"
+
+            const requestOptions = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(inquiryEqpmnRepCondition)
+            }
+
+            await EgovNet.requestFetch(apiUrl,
+                requestOptions,
+                (res) => {
+                    setEqpmnRepPaginationInfo(res.result?.paginationInfo)
+                    setEqpmnRepList(res.result?.list)
+                },
+                (err) => {
+                    console.log("err response", err);
+                })
+            console.groupEnd("selectEqpmnRepList");
+    }
+    //실적
+    const selectPerRepList = async () => {
+        const apiUrl = "/api/v1/epr/perRepList.do";
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(inquiryPerRepCondition)
+        }
+
+        await EgovNet.requestFetch(apiUrl,
+            requestOptions,
+            (res) => {
+                setPerRepPaginationInfo(res.result?.paginationInfo);
+                setPerRepList(res.result?.list);
+            },
+            (err) => { console.log("err response", err);
+        })
+        console.groupEnd("selectPerRepList");
+    }
+
+    /*** 데이터 list 불러오기 끝 ***/
+
+    /*** 데이터 최초 조회 및 페이지네이션 시, 데이터 조회 시작 ***/
+    // ExcPerRepMngtList 에서 넘어온 ExcPerRepSeq 가 업데이트 될 때, 각 조회 키워드의 excPerRepSeq 업데이트
+    // 장비
+    useEffect(() => {
+        console.log(inquiryEqpmnRepCondition);
+        selectEqpmnRepList();
+    }, [inquiryEqpmnRepCondition.pageIndex]);
+    
+    // 실적
+    useEffect(() => {
+        console.log(inquiryPerRepCondition);
+        selectPerRepList();
+    }, [inquiryPerRepCondition.pageIndex]);
+    /*** 데이터 최초 조회 및 페이지네이션 시, 데이터 조회 끝 ***/
+
 
     /*** 체크박스 시작 ***/
-
     // 선택된 장비신고 체크박스 리스트
     const [checkedEqpmnRepItems, setCheckedEqpmnRepItems] = useState([]);
 
@@ -172,23 +263,20 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
     const handleSelectPerRepAll = (e) => {
         setCheckedPerRepItems(e.target.checked ? perRepData.map((item) => item.id) : []);
     };
-
     /*** 체크박스 끝 ***/
 
     /*** 연도 선택 셀렉트 박스 시작 ***/
-
     // 년도 선택 셀렉트 박스
     const currentYear = new Date().getFullYear();
     const years = Array.from({length: 10}, (_, i) => currentYear - 10 + i);
-
     /*** 연도 선택 셀렉트 박스 끝 ***/
 
     /*** 모달 시작 ***/
-
+    // 모달 상태 관리
     const [secondModalStates, setSecondModalStates] = useState({
-        eqpmnRepCreateModal: false, perRepCreateModal: false,
-    }); // 모달 상태 관리
-
+        eqpmnRepCreateModal: false,
+        perRepCreateModal: false,
+    });
     // 모달 열기
     const openSecondModal = (modalName) => {
         console.log(modalName)
@@ -196,14 +284,12 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
             ...prevState, [modalName]: true,
         }));
     };
-
     // 모달 닫기
     const closeSecondModal = (modalName) => {
         setSecondModalStates((prevState) => ({
             ...prevState, [modalName]: false,
         }));
     };
-
     /*** 모달 끝 ***/
 
     return (
@@ -234,17 +320,8 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
                                     <dl>
                                         <dt><label htmlFor="writer">수행년도</label></dt>
                                         <dd>
-                                            <label className="f_select w_full" htmlFor="year_select">
-                                                <select name="year_select" id="year_select" disabled={true}
-                                                        defaultValue={"2019"}>
-                                                    <option value="">선택안함</option>
-                                                    {years.map((year) => (
-                                                        <option key={year} value={year}>
-                                                            {year}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </label>
+                                            <input className="f_input2 w_full" type="text" name="writer"
+                                                   id="writer" readOnly={true} defaultValue={excPerRep?.excDate}/>
                                         </dd>
                                     </dl>
                                 </div>
@@ -253,7 +330,7 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
                                         <dt><label htmlFor="writer">수행 명</label></dt>
                                         <dd>
                                             <input className="f_input2 w_full" type="text" name="writer"
-                                                   id="writer" readOnly={true} defaultValue={"test"}/>
+                                                   id="writer" readOnly={true} defaultValue={excPerRep?.excPerRepName}/>
                                         </dd>
                                     </dl>
                                 </div>
@@ -261,11 +338,11 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
                                 <div className="info" style={{marginBottom: "15px", borderBottom: "2px solid #222"}}>
                                     <dl>
                                         <dt>신고담당자</dt>
-                                        <dd>innovate</dd>
+                                        <dd>{excPerRep?.cngId}</dd>
                                     </dl>
                                     <dl>
                                         <dt>수정일</dt>
-                                        <dd>2011-08-01 23:22:11</dd>
+                                        <dd>{excPerRep?.cngDate}</dd>
                                     </dl>
                                 </div>
                                 <div style={{border: "1px solid black", padding: "10px"}}>
@@ -310,22 +387,22 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
                                         </div>
 
                                         <div className="result">
-                                            {currentEqpmnRepItems.length > 0 ? (
-                                                currentEqpmnRepItems.map((item) => (
-                                                    <div key={item.id} className="list_item">
+                                            {eqpmnRepList && eqpmnRepList.length > 0 ? (
+                                                eqpmnRepList.map((item) => (
+                                                    <div key={item.eqpmnNo} className="list_item">
                                                         <div>
                                                             <input
                                                                 type="checkbox"
-                                                                value={item.id}
-                                                                checked={checkedEqpmnRepItems.includes(item.id)}
-                                                                onChange={() => handleEqpmnRepCheckboxChange(item.id)}
+                                                                value={item.eqpmnNo}
+                                                                checked={checkedEqpmnRepItems.includes(item.eqpmnNo)}
+                                                                onChange={() => handleEqpmnRepCheckboxChange(item.eqpmnNo)}
                                                             />
                                                         </div>
-                                                        <div>{item.serialNumber}</div>
-                                                        <div>{item.name}</div>
-                                                        <div>{item.specification}</div>
-                                                        <div>{item.registrationNumber}</div>
-                                                        <div>{item.grade}</div>
+                                                        <div>{item.eqpmnNo}</div>
+                                                        <div>{item.eqpmnName}</div>
+                                                        <div>{item.stndrd}</div>
+                                                        <div>{item.regNo}</div>
+                                                        <div>{item.gradeName}</div>
                                                     </div>
                                                 ))
                                             ) : (
@@ -338,8 +415,10 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
                                             <ul>
                                                 {/* "처음" - First page button */}
                                                 <li className="btn">
-                                                    <button disabled={currentEqpmnRepPage === 1}
-                                                            onClick={() => setCurrentEqpmnRepPage(1)}
+                                                    <button disabled={inquiryEqpmnRepCondition.pageIndex === 1}
+                                                            onClick={(e) => handleInquiryEqpmnRepCondition(
+                                                                {target : { name: "pageIndex", value: 1}}
+                                                            )}
                                                             className="first">
                                                         처음
                                                     </button>
@@ -347,19 +426,23 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
 
                                                 {/* "이전" - Previous page button */}
                                                 <li className="btn">
-                                                    <button disabled={currentEqpmnRepPage === 1}
-                                                            onClick={() => setCurrentEqpmnRepPage((prev) => Math.max(prev - 1, 1))}
+                                                    <button disabled={inquiryEqpmnRepCondition.pageIndex === 1}
+                                                            onClick={(e) => handleInquiryEqpmnRepCondition(
+                                                                {target : { name: "pageIndex", value: Math.max(inquiryEqpmnRepCondition.pageIndex - 1, 1)}}
+                                                            )}
                                                             className="prev">
                                                         이전
                                                     </button>
                                                 </li>
 
                                                 {/* Pagination buttons for each page */}
-                                                {Array.from({length: totalEqmnRepPages}, (_, i) => (
+                                                {Array.from({length: eqpmnRepPaginationInfo.totalPageCount}, (_, i) => (
                                                     <li key={i}>
                                                         <button
-                                                            className={currentEqpmnRepPage === i + 1 ? "cur" : ""}
-                                                            onClick={() => setCurrentEqpmnRepPage(i + 1)}
+                                                            className={inquiryEqpmnRepCondition.pageIndex === i + 1 ? "cur" : ""}
+                                                            onClick={(e) => handleInquiryEqpmnRepCondition(
+                                                                {target : { name: "pageIndex", value: i + 1}}
+                                                            )}
                                                         >
                                                             {i + 1}
                                                         </button>
@@ -368,8 +451,10 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
 
                                                 {/* "다음" - Next page button */}
                                                 <li className="btn">
-                                                    <button disabled={currentEqpmnRepPage === totalEqmnRepPages}
-                                                            onClick={() => setCurrentEqpmnRepPage((prev) => Math.min(prev + 1, totalEqmnRepPages))}
+                                                    <button disabled={inquiryEqpmnRepCondition.pageIndex === eqpmnRepPaginationInfo.totalPageCount}
+                                                            onClick={() => handleInquiryEqpmnRepCondition(
+                                                                {target : { name: "pageIndex", value: Math.min(inquiryEqpmnRepCondition.pageIndex + 1, eqpmnRepPaginationInfo.totalPageCount)}}
+                                                            )}
                                                             className="next">
                                                         다음
                                                     </button>
@@ -377,8 +462,10 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
 
                                                 {/* "마지막" - Last page button */}
                                                 <li className="btn">
-                                                    <button disabled={currentEqpmnRepPage === totalEqmnRepPages}
-                                                            onClick={() => setCurrentEqpmnRepPage(totalEqmnRepPages)}
+                                                    <button disabled={inquiryEqpmnRepCondition.pageIndex === eqpmnRepPaginationInfo.totalPageCount}
+                                                            onClick={(e) => handleInquiryEqpmnRepCondition(
+                                                                {target: { name: "pageIndex", value: eqpmnRepPaginationInfo.totalPageCount}}
+                                                            )}
                                                             className="last">
                                                         마지막
                                                     </button>
@@ -428,22 +515,22 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
                                         </div>
 
                                         <div className="result">
-                                            {currentPerRepItems.length > 0 ? (
-                                                currentPerRepItems.map((item) => (
-                                                    <div key={item.id} className="list_item">
+                                            {perRepList && perRepList.length > 0 ? (
+                                                perRepList.map((item) => (
+                                                    <div key={item.perNo} className="list_item">
                                                         <div>
                                                             <input
                                                                 type="checkbox"
-                                                                value={item.id}
-                                                                checked={checkedPerRepItems.includes(item.id)}
-                                                                onChange={() => handlePerRepCheckboxChange(item.id)}
+                                                                value={item.perNo}
+                                                                checked={checkedPerRepItems.includes(item.perNo)}
+                                                                onChange={() => handlePerRepCheckboxChange(item.perNo)}
                                                             />
                                                         </div>
-                                                        <div>{item.serialNumber}</div>
-                                                        <div>{item.projectName}</div>
-                                                        <div>{item.projectType}</div>
-                                                        <div>{item.contractAmount}</div>
-                                                        <div>{item.manager}</div>
+                                                        <div>{item.perNo}</div>
+                                                        <div>{item.servcName}</div>
+                                                        <div>{item.servcSeName}</div>
+                                                        <div>{item.cntrctAmount}</div>
+                                                        <div>{item.chargerName}</div>
                                                     </div>
                                                 ))
                                             ) : (
@@ -456,8 +543,10 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
                                             <ul>
                                                 {/* "처음" - First page button */}
                                                 <li className="btn">
-                                                    <button disabled={currentPerRepPage === 1}
-                                                            onClick={() => setCurrentPerRepPage(1)}
+                                                    <button disabled={inquiryPerRepCondition.pageIndex === 1}
+                                                            onClick={(e) => handleInquiryPerRepCondition(
+                                                                { target : { name: "pageIndex", value: 1} }
+                                                            )}
                                                             className="first">
                                                         처음
                                                     </button>
@@ -465,19 +554,23 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
 
                                                 {/* "이전" - Previous page button */}
                                                 <li className="btn">
-                                                    <button disabled={currentPerRepPage === 1}
-                                                            onClick={() => setCurrentPerRepPage((prev) => Math.max(prev - 1, 1))}
+                                                    <button disabled={inquiryPerRepCondition.pageIndex === 1}
+                                                            onClick={(e) => handleInquiryPerRepCondition(
+                                                                { target : { name: "pageIndex", value: Math.max(inquiryPerRepCondition.pageIndex - 1, 1)} }
+                                                            )}
                                                             className="prev">
                                                         이전
                                                     </button>
                                                 </li>
 
                                                 {/* Pagination buttons for each page */}
-                                                {Array.from({length: totalPerRepPages}, (_, i) => (
+                                                {Array.from({length: perRepPaginationInfo.totalPageCount}, (_, i) => (
                                                     <li key={i}>
                                                         <button
-                                                            className={currentPerRepPage === i + 1 ? "cur" : ""}
-                                                            onClick={() => setCurrentPerRepPage(i + 1)}
+                                                            className={inquiryPerRepCondition.pageIndex === i + 1 ? "cur" : ""}
+                                                            onClick={(e) => handleInquiryPerRepCondition(
+                                                                {target: { name: "pageIndex", value: i + 1 }}
+                                                            )}
                                                         >
                                                             {i + 1}
                                                         </button>
@@ -486,8 +579,10 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
 
                                                 {/* "다음" - Next page button */}
                                                 <li className="btn">
-                                                    <button disabled={currentPerRepPage === totalPerRepPages}
-                                                            onClick={() => setCurrentPerRepPage((prev) => Math.min(prev + 1, totalPerRepPages))}
+                                                    <button disabled={inquiryPerRepCondition.pageIndex === perRepPaginationInfo.totalPageCount}
+                                                            onClick={() => handleInquiryPerRepCondition(
+                                                                { target: { name: "pageIndex", value: Math.min(inquiryPerRepCondition.pageIndex + 1, perRepPaginationInfo.totalPageCount)}}
+                                                            )}
                                                             className="next">
                                                         다음
                                                     </button>
@@ -495,8 +590,10 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRepSeq}) => {
 
                                                 {/* "마지막" - Last page button */}
                                                 <li className="btn">
-                                                    <button disabled={currentPerRepPage === totalPerRepPages}
-                                                            onClick={() => setCurrentPerRepPage(totalPerRepPages)}
+                                                    <button disabled={inquiryPerRepCondition.pageIndex === perRepPaginationInfo.totalPageCount}
+                                                            onClick={(e) => handleInquiryPerRepCondition(
+                                                                { target: { name: "pageIndex", value: perRepPaginationInfo.totalPageCount } }
+                                                            )}
                                                             className="last">
                                                         마지막
                                                     </button>

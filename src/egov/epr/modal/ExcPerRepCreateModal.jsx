@@ -70,9 +70,9 @@ const ExcPerRepCreateModal = ({closeModal}) => {
         excPerRepName: ''  // 수행 실적 신고 명
     })
 
-    const handelCreateData = async (e) => {
+    const handelCreateData = (e) => {
         const { name, value } = e.target;
-        await setCreateData((prevState) => ({
+        setCreateData((prevState) => ({
             ...prevState,
             [name]: value,
         }))
