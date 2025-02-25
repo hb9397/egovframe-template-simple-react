@@ -131,7 +131,6 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
     const [eqpmnRepPaginationInfo, setEqpmnRepPaginationInfo] = useState({});
     // 실적 현재 페이지네이션 정보
     const [perRepPaginationInfo, setPerRepPaginationInfo] = useState({});
-
     // 장비신고 목록
     const [eqpmnRepList, setEqpmnRepList] = useState({});
     // 실적 목록
@@ -218,7 +217,6 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
         })
         console.groupEnd("selectPerRepList");
     }
-
     /*** 데이터 list 불러오기 끝 ***/
 
     /*** 데이터 최초 조회 및 페이지네이션 시, 데이터 조회 시작 ***/
@@ -265,21 +263,18 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
     };
     /*** 체크박스 끝 ***/
 
-    /*** 연도 선택 셀렉트 박스 시작 ***/
-    // 년도 선택 셀렉트 박스
-    const currentYear = new Date().getFullYear();
-    const years = Array.from({length: 10}, (_, i) => currentYear - 10 + i);
-    /*** 연도 선택 셀렉트 박스 끝 ***/
-
     /*** 모달 시작 ***/
     // 모달 상태 관리
     const [secondModalStates, setSecondModalStates] = useState({
         eqpmnRepCreateModal: false,
         perRepCreateModal: false,
     });
+
+    // 장비, 실적 등록 모달에 넘길 excPerRepSeq
+    const selectedExcPerRepSeq = excPerRep?.excPerRepSeq;
+
     // 모달 열기
     const openSecondModal = (modalName) => {
-        console.log(modalName)
         setSecondModalStates((prevState) => ({
             ...prevState, [modalName]: true,
         }));
@@ -635,7 +630,7 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
                 </div>
             </div>
             {secondModalStates.eqpmnRepCreateModal &&
-                <EqpmnRepCreateModal closeSecondModal={() => closeSecondModal('eqpmnRepCreateModal')}/>}
+                <EqpmnRepCreateModal closeSecondModal={() => closeSecondModal('eqpmnRepCreateModal')} selectedExcPerRepSeq={selectedExcPerRepSeq}/>}
             {secondModalStates.perRepCreateModal &&
                 <PerRepCreateModal closeSecondModal={() => closeSecondModal('perRepCreateModal')}/>}
         </div>

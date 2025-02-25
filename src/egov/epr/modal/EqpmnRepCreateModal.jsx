@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Link} from "react-router-dom";
 import URL from "../../../context/url";
+import * as EgovNet from "../../../context/egovFetch";
 
 // 임시 데이터
 const gradeCodeData = [
@@ -10,7 +11,7 @@ const gradeCodeData = [
     { code: "0004", value: "D" }
 ];
 
-const EqpmnRepCreateModal = ({closeSecondModal}) => {
+const EqpmnRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq}) => {
     const modalOverlayStyle = {
         position: 'fixed',
         top: 0,
@@ -61,6 +62,47 @@ const EqpmnRepCreateModal = ({closeSecondModal}) => {
         width: '2rem',
     };
 
+    /*** 등록 데이터 시작 ***/
+    const [createData, setCreateData] = useState({
+        excPerRepSeq: selectedExcPerRepSeq,
+        eqpmnName: "",
+        eqpmnNo: "",
+        stndrd: "",
+        gradeCode: "",
+    })
+
+    const handleCreateData = (e) => {
+        const { name, value } = e.target;
+
+        setCreateData((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }))
+    }
+
+    const createEqpmn = async () => {
+        const apiUrl = "/api/v1/epr/insertEqpmnRep.do";
+
+        const requestOptions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(createData),
+        }
+
+        await EgovNet.requestFetch( apiUrl,
+            requestOptions,
+            (res) => {
+                alert("등록되었습니다.")
+                closeSecondModal();
+            },
+            (err) => {
+                console.log("err response", err);
+            })
+        console.log("createEqpmnRep");
+    }
+
     return (
         <div>
             <div style={modalOverlayStyle} onClick={closeSecondModal}>
@@ -85,25 +127,28 @@ const EqpmnRepCreateModal = ({closeSecondModal}) => {
                                         <dt><label htmlFor="writer">장비 명</label></dt>
                                         <dd>
                                             <input className="f_input2 w_full" type="text" name="writer"
-                                                   id="writer"/>
+                                                   id="writer"
+                                            onChange={(e) => handleCreateData({ target: { name: "eqpmnName", value: e.target.value } })}/>
                                         </dd>
                                     </dl>
                                 </div>
                                 <div className="tit_edit">
                                     <dl>
-                                        <dt><label htmlFor="writer">등록번호</label></dt>
+                                        <dt><label htmlFor="writer">장비일련번호</label></dt>
                                         <dd>
                                             <input className="f_input2 w_full" type="text" name="writer"
-                                                   id="writer"/>
+                                                   id="writer"
+                                            onChange={(e) => handleCreateData({ target: { name: "eqpmnNo", value: e.target.value } })}/>
                                         </dd>
                                     </dl>
                                 </div>
                                 <div className="tit_edit">
                                     <dl>
-                                        <dt><label htmlFor="writer">규격번호</label></dt>
+                                        <dt><label htmlFor="writer">규격</label></dt>
                                         <dd>
                                             <input className="f_input2 w_full" type="text" name="writer"
-                                                   id="writer"/>
+                                                   id="writer"
+                                            onChange={(e) => handleCreateData( { target: { name: "stndrd", value: e.target.value } })}/>
                                         </dd>
                                     </dl>
                                 </div>
@@ -112,7 +157,9 @@ const EqpmnRepCreateModal = ({closeSecondModal}) => {
                                         <dt><label htmlFor="writer">등급</label></dt>
                                         <dd>
                                             <label className="f_select w_full" htmlFor="year_select">
-                                                <select name="year_select" id="year_select">
+                                                <select name="year_select" id="year_select" onChange = {
+                                                    (e) => handleCreateData({ target: { name: "gradeCode", value: e.target.value } })
+                                                }>
                                                     <option value="">선택안함</option>
                                                     {gradeCodeData.map((grade) => (
                                                         <option key={grade.code} value={grade.code}>
@@ -136,7 +183,8 @@ const EqpmnRepCreateModal = ({closeSecondModal}) => {
                                     gap: "10px"
                                 }}>
                                     <button style={closeButtonStyle} onClick={closeSecondModal}>닫기</button>
-                                    <button className="btn btn_blue_h46" style={{
+                                    <button onClick={() => createEqpmn()}
+                                        className="btn btn_blue_h46" style={{
                                         height: "46px",
                                         width: "100px",
                                         textAlign: "center",

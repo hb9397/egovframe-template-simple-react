@@ -55,9 +55,6 @@ const ExcPerRepCreateModal = ({closeModal}) => {
         width: '2rem',
     };
 
-    /*** User 정보 ***/
-    const [user, setUser] = useState({});
-
     /*** 연도 셀렉트 박스 시작 ***/
     const currentYear = new Date().getFullYear();
     const years = Array.from({length: 10}, (_, i) => currentYear - 10 + i);
@@ -93,7 +90,6 @@ const ExcPerRepCreateModal = ({closeModal}) => {
         await EgovNet.requestFetch(apiUrl,
             requestOptions,
             (res)=>{
-                setUser(res.result?.user);
                 alert("등록되었습니다.")
                 closeModal();
                 window.location.reload();
