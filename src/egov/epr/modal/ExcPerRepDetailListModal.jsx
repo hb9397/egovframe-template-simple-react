@@ -140,13 +140,13 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
     /*** 데이터 조회 조건 시작***/
     // 장비
     const [inquiryEqpmnRepCondition, setInquiryEqpmnRepCondition] = useState({
-            inquiryExcPerRepSeq: Number(excPerRep?.excPerRepSeq),
+            inquiryExcPerRepSeq: excPerRep?.excPerRepSeq,
             pageIndex: 1,
             pageUnit: 5,
     });
     // 실적
     const [inquiryPerRepCondition, setInquiryPerRepCondition] = useState({
-        inquiryExcPerRepSeq: Number(excPerRep?.excPerRepSeq),
+        inquiryExcPerRepSeq: excPerRep?.excPerRepSeq,
         pageIndex: 1,
         pageUnit: 5,
     });
@@ -223,13 +223,11 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
     // ExcPerRepMngtList 에서 넘어온 ExcPerRepSeq 가 업데이트 될 때, 각 조회 키워드의 excPerRepSeq 업데이트
     // 장비
     useEffect(() => {
-        console.log(inquiryEqpmnRepCondition);
         selectEqpmnRepList();
     }, [inquiryEqpmnRepCondition.pageIndex]);
     
     // 실적
     useEffect(() => {
-        console.log(inquiryPerRepCondition);
         selectPerRepList();
     }, [inquiryPerRepCondition.pageIndex]);
     /*** 데이터 최초 조회 및 페이지네이션 시, 데이터 조회 끝 ***/
