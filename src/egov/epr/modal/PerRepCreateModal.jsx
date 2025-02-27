@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Link} from "react-router-dom";
 import URL from "../../../context/url";
+import * as EgovNet from "../../../context/egovFetch";
 
 // 임시 데이터
 const gradeCodeData = [
@@ -10,7 +11,7 @@ const gradeCodeData = [
     {code: "0004", value: "D"}
 ];
 
-const PerRepCreateModal = ({closeSecondModal}) => {
+const PerRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq}) => {
 
     const modalOverlayStyle = {
         position: 'fixed',
@@ -62,6 +63,50 @@ const PerRepCreateModal = ({closeSecondModal}) => {
         width: '2rem',
     };
 
+    /*** 등록 데이터 시작 ***/
+    const [createData, setCreateData] = useState({
+        excPerRepSeq :  selectedExcPerRepSeq,
+        servcName : "",
+        servcSeCode : "",
+        cntrctAmount : "",
+        chargerName : "",
+        servc : ""
+    })
+
+    const handleCreateData = (e) => {
+        const { name, value } = e.target;
+
+        setCreateData((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }))
+    }
+
+    const createPerRep = async () => {
+        const apiUrl = "/api/v1/epr/insertPerRep.do";
+
+        const requestOptions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            }
+            , body: JSON.stringify(createData)
+        }
+
+        await EgovNet.requestFetch( apiUrl,
+            requestOptions,
+            (res) => {
+                alert("등록되었습니다.")
+                closeSecondModal();
+            },
+            (err) => {
+                console.log("err response", err)
+            }
+        )
+        console.log("createPerRep");
+    }
+
+
     return (
         <div>
             <div style={modalOverlayStyle} onClick={closeSecondModal}>
@@ -86,7 +131,8 @@ const PerRepCreateModal = ({closeSecondModal}) => {
                                         <dt><label htmlFor="writer">용역 명</label></dt>
                                         <dd>
                                             <input className="f_input2 w_full" type="text" name="writer"
-                                                   id="writer"/>
+                                                   id="writer"
+                                            onChange={(e) => handleCreateData({ target : { name : "servcName", value: e.target.value}})}/>
                                         </dd>
                                     </dl>
                                 </div>
@@ -95,7 +141,7 @@ const PerRepCreateModal = ({closeSecondModal}) => {
                                         <dt><label htmlFor="writer">용역구분</label></dt>
                                         <dd>
                                             <label className="f_select w_full" htmlFor="year_select">
-                                                <select name="year_select" id="year_select">
+                                                <select name="year_select" id="year_select" onChange={(e) => handleCreateData({ target : { name : "servcSeCode", value: e.target.value}})}>
                                                     <option value="">선택안함</option>
                                                     {gradeCodeData.map((grade) => (
                                                         <option key={grade.code} value={grade.code}>
@@ -112,7 +158,8 @@ const PerRepCreateModal = ({closeSecondModal}) => {
                                         <dt><label htmlFor="writer">용역내용</label></dt>
                                         <dd>
                                             <input className="f_input2 w_full" type="text" name="writer"
-                                                   id="writer"/>
+                                                   id="writer"
+                                            onChange={(e) => handleCreateData({ target : { name : "servc", value: e.target.value}})}/>
                                         </dd>
                                     </dl>
                                 </div>
@@ -121,7 +168,8 @@ const PerRepCreateModal = ({closeSecondModal}) => {
                                         <dt><label htmlFor="writer">계약금액</label></dt>
                                         <dd>
                                             <input className="f_input2 w_full" type="text" name="writer"
-                                                   id="writer"/>
+                                                   id="writer"
+                                            onChange={(e) => handleCreateData({ target : { name : "cntrctAmount", value: e.target.value}})}/>
                                         </dd>
                                     </dl>
                                 </div>
@@ -130,7 +178,8 @@ const PerRepCreateModal = ({closeSecondModal}) => {
                                         <dt><label htmlFor="writer">담당자명</label></dt>
                                         <dd>
                                             <input className="f_input2 w_full" type="text" name="writer"
-                                                   id="writer"/>
+                                                   id="writer"
+                                            onChange={(e) => handleCreateData({ target : { name : "chargerName", value: e.target.value}})}/>
                                         </dd>
                                     </dl>
                                 </div>
@@ -146,7 +195,8 @@ const PerRepCreateModal = ({closeSecondModal}) => {
                                     gap: "10px"
                                 }}>
                                     <button style={closeButtonStyle} onClick={closeSecondModal}>닫기</button>
-                                    <button className="btn btn_blue_h46" style={{
+                                    <button onClick={() => createPerRep()}
+                                        className="btn btn_blue_h46" style={{
                                         height: "46px",
                                         width: "100px",
                                         textAlign: "center",

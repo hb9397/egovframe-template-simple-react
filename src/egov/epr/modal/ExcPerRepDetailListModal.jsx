@@ -630,7 +630,7 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
             {secondModalStates.eqpmnRepCreateModal &&
                 <EqpmnRepCreateModal closeSecondModal={() => closeSecondModal('eqpmnRepCreateModal')} selectedExcPerRepSeq={selectedExcPerRepSeq}/>}
             {secondModalStates.perRepCreateModal &&
-                <PerRepCreateModal closeSecondModal={() => closeSecondModal('perRepCreateModal')}/>}
+                <PerRepCreateModal closeSecondModal={() => closeSecondModal('perRepCreateModal')} selectedExcPerRepSeq={selectedExcPerRepSeq}/>}
         </div>
     );
 };
