@@ -1,15 +1,7 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Link} from "react-router-dom";
 import URL from "../../../context/url";
 import * as EgovNet from "../../../context/egovFetch";
-
-// 임시 데이터
-const gradeCodeData = [
-    {code: "0001", value: "A"},
-    {code: "0002", value: "B"},
-    {code: "0003", value: "C"},
-    {code: "0004", value: "D"}
-];
 
 const PerRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq, reloadPerRepList}) => {
 
@@ -62,6 +54,41 @@ const PerRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq, reloadPerRep
         height: '2rem',
         width: '2rem',
     };
+    /*** 용역구분 코드 셀렉트 박스 공통코드 값 조회 시작  ***/
+    const [serviceTypeCode, setServiceTypeCode] = useState([]);
+
+    const selectServiceTypeCode = async () => {
+        const apiUrl = "/api/v1/epr/com/code/service/type.do"
+
+        const requestOptions = {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }
+
+        await EgovNet.requestFetch(apiUrl,
+            requestOptions,
+            (res) => {
+                if(res.result?.list) {
+                    const type = res.result.list.map((item) => ({
+                        code: item.code,
+                        value: item.value,
+                    }));
+                    setServiceTypeCode(type);
+                }
+            },
+            (err) => {
+                console.log("err response :" + err);
+            })
+        console.groupEnd("selectServiceTypeCodeList");
+    }
+
+    useEffect(() => {
+        console.log(serviceTypeCode);
+        selectServiceTypeCode();
+    }, [])
+    /*** 용역구분 코드 셀렉트 박스 공통코드 값 조회 끝  ***/
 
     /*** 등록 데이터 시작 ***/
     const [createData, setCreateData] = useState({
@@ -144,9 +171,9 @@ const PerRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq, reloadPerRep
                                             <label className="f_select w_full" htmlFor="year_select">
                                                 <select name="year_select" id="year_select" onChange={(e) => handleCreateData({ target : { name : "servcSeCode", value: e.target.value}})}>
                                                     <option value="">선택안함</option>
-                                                    {gradeCodeData.map((grade) => (
-                                                        <option key={grade.code} value={grade.code}>
-                                                            {grade.value}
+                                                    {serviceTypeCode.map((type) => (
+                                                        <option key={type.code} value={type.code}>
+                                                            {type.value}
                                                         </option>
                                                     ))}
                                                 </select>

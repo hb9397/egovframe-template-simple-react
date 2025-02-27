@@ -1,15 +1,5 @@
-import React, {useState} from 'react';
-import {Link} from "react-router-dom";
-import URL from "../../../context/url";
+import React, {useEffect, useState} from 'react';
 import * as EgovNet from "../../../context/egovFetch";
-
-// 임시 데이터
-const gradeCodeData = [
-    { code: "0001", value: "A" },
-    { code: "0002", value: "B" },
-    { code: "0003", value: "C" },
-    { code: "0004", value: "D" }
-];
 
 const EqpmnRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq, reloadEqpmnList}) => {
     const modalOverlayStyle = {
@@ -61,6 +51,41 @@ const EqpmnRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq, reloadEqpm
         height: '2rem',
         width: '2rem',
     };
+
+    /*** 장비등급 코드 셀렉트 박스 공통코드 값 조회 시작  ***/
+    const [eqpmnGradeCode, setEeqpmnGradeCode] = useState([]);
+
+    const selectEqpmnGradeCodeList = async () => {
+        const apiUrl = "/api/v1/epr/com/code/eqpmn/grade.do"
+
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }
+
+        await EgovNet.requestFetch(apiUrl,
+            requestOptions,
+            (res) => {
+                if (res.result?.list) {
+                    const grade = res.result.list.map(item => ({
+                        code: item.code,
+                        value: item.value
+                    }));
+                    setEeqpmnGradeCode(grade);
+                }
+            },
+            (err) => {
+                console.log("err response", err)
+            })
+        console.log("selectEqpmnGradeCodeList");
+    }
+
+    useEffect(() => {
+        selectEqpmnGradeCodeList();
+    }, []);
+    /*** 장비등급 코드 셀렉트 박스 공통코드 값 조회 끝  ***/
 
     /*** 등록 데이터 시작 ***/
     const [createData, setCreateData] = useState({
@@ -163,7 +188,7 @@ const EqpmnRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq, reloadEqpm
                                                     (e) => handleCreateData({ target: { name: "gradeCode", value: e.target.value } })
                                                 }>
                                                     <option value="">선택안함</option>
-                                                    {gradeCodeData.map((grade) => (
+                                                    {eqpmnGradeCode.map((grade) => (
                                                         <option key={grade.code} value={grade.code}>
                                                             {grade.value}
                                                         </option>
