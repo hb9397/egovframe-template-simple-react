@@ -628,9 +628,9 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
                 </div>
             </div>
             {secondModalStates.eqpmnRepCreateModal &&
-                <EqpmnRepCreateModal closeSecondModal={() => closeSecondModal('eqpmnRepCreateModal')} selectedExcPerRepSeq={selectedExcPerRepSeq}/>}
+                <EqpmnRepCreateModal closeSecondModal={() => closeSecondModal('eqpmnRepCreateModal')} selectedExcPerRepSeq={selectedExcPerRepSeq} reloadEqpmnList={() => selectEqpmnRepList()}/>}
             {secondModalStates.perRepCreateModal &&
-                <PerRepCreateModal closeSecondModal={() => closeSecondModal('perRepCreateModal')} selectedExcPerRepSeq={selectedExcPerRepSeq}/>}
+                <PerRepCreateModal closeSecondModal={() => closeSecondModal('perRepCreateModal')} selectedExcPerRepSeq={selectedExcPerRepSeq} reloadPerRepList={() => selectPerRepList()}/>}
         </div>
     );
 };

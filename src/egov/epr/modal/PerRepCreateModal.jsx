@@ -11,7 +11,7 @@ const gradeCodeData = [
     {code: "0004", value: "D"}
 ];
 
-const PerRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq}) => {
+const PerRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq, reloadPerRepList}) => {
 
     const modalOverlayStyle = {
         position: 'fixed',
@@ -96,7 +96,8 @@ const PerRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq}) => {
         await EgovNet.requestFetch( apiUrl,
             requestOptions,
             (res) => {
-                alert("등록되었습니다.")
+                alert("등록되었습니다.");
+                reloadPerRepList();
                 closeSecondModal();
             },
             (err) => {
@@ -105,7 +106,7 @@ const PerRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq}) => {
         )
         console.log("createPerRep");
     }
-
+    /*** 데이터 등록 끝 ***/
 
     return (
         <div>

@@ -11,7 +11,7 @@ const gradeCodeData = [
     { code: "0004", value: "D" }
 ];
 
-const EqpmnRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq}) => {
+const EqpmnRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq, reloadEqpmnList}) => {
     const modalOverlayStyle = {
         position: 'fixed',
         top: 0,
@@ -95,6 +95,7 @@ const EqpmnRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq}) => {
             requestOptions,
             (res) => {
                 alert("등록되었습니다.")
+                reloadEqpmnList();
                 closeSecondModal();
             },
             (err) => {
@@ -102,6 +103,7 @@ const EqpmnRepCreateModal = ({closeSecondModal, selectedExcPerRepSeq}) => {
             })
         console.log("createEqpmnRep");
     }
+    /*** 데이터 등록 끝 ***/
 
     return (
         <div>
