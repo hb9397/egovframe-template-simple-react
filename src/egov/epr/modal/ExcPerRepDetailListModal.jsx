@@ -3,77 +3,6 @@ import EqpmnRepCreateModal from "./EqpmnRepCreateModal";
 import PerRepCreateModal from "./PerRepCreateModal";
 import * as EgovNet from "../../../context/egovFetch";
 
-// 임시 데이터
-const eqpmnRepData = [
-    {
-        id: 3,
-        serialNumber: "SN2024003",
-        name: "전자정부 서버 A",
-        specification: "Intel Xeon 16-core, 32GB RAM",
-        registrationNumber: "REG-003",
-        grade: "A"
-    },
-    {
-        id: 2,
-        serialNumber: "SN2024002",
-        name: "전자정부 스토리지 B",
-        specification: "SSD 2TB, RAID 5",
-        registrationNumber: "REG-002",
-        grade: "B"
-    },
-    {
-        id: 1,
-        serialNumber: "SN2024001",
-        name: "전자정부 네트워크 장비 C",
-        specification: "1Gbps 48-port Switch",
-        registrationNumber: "REG-001",
-        grade: "A"
-    },
-    {
-        id: 0,
-        serialNumber: "SN2024000",
-        name: "테스트 장비 D",
-        specification: "8-core CPU, 16GB RAM",
-        registrationNumber: "REG-000",
-        grade: "C"
-    },
-];
-
-const perRepData = [
-    {
-        id: 3,
-        serialNumber: "PR2024003",
-        projectName: "전자정부 시스템 구축",
-        projectType: "소프트웨어 개발",
-        contractAmount: "₩500,000,000",
-        manager: "김철수"
-    },
-    {
-        id: 2,
-        serialNumber: "PR2024002",
-        projectName: "전자정부 네트워크 개선",
-        projectType: "네트워크 구축",
-        contractAmount: "₩300,000,000",
-        manager: "이영희"
-    },
-    {
-        id: 1,
-        serialNumber: "PR2024001",
-        projectName: "전자정부 데이터베이스 최적화",
-        projectType: "DB 튜닝",
-        contractAmount: "₩150,000,000",
-        manager: "박민준"
-    },
-    {
-        id: 0,
-        serialNumber: "PR2024000",
-        projectName: "테스트 프로젝트",
-        projectType: "파일럿 테스트",
-        contractAmount: "₩80,000,000",
-        manager: "최은지"
-    },
-];
-
 const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
 
     const modalOverlayStyle = {
@@ -232,34 +161,68 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
     }, [inquiryPerRepCondition.pageIndex]);
     /*** 데이터 최초 조회 및 페이지네이션 시, 데이터 조회 끝 ***/
 
-
+    /**** 데이터 삭제(SoftDelete) 시작 *****/
     /*** 체크박스 시작 ***/
     // 선택된 장비신고 체크박스 리스트
-    const [checkedEqpmnRepItems, setCheckedEqpmnRepItems] = useState([]);
+    const [checkedRegNos, setCheckedRegNos] = useState([]);
 
     // 개별 장비신고 체크박스 클릭 이벤트
-    const handleEqpmnRepCheckboxChange = (id) => {
-        setCheckedEqpmnRepItems((prev) => prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]);
+    const handleEqpmnRepCheckboxChange = (regNo) => {
+        setCheckedRegNos(
+            (prevState) => prevState.includes(regNo)
+                ? prevState.filter((item) => item !== regNo) : [...prevState, regNo]
+        );
     };
-
     // 전체 장비신고 체크박스 선택/해제
     const handleSelectEqpmnRepAll = (e) => {
-        setCheckedEqpmnRepItems(e.target.checked ? eqpmnRepData.map((item) => item.id) : []);
+        setCheckedRegNos(e.target.checked ? eqpmnRepList?.map((item) => item.regNo) : []);
     };
 
     // 선택된 실적신고 체크박스 리스트
-    const [checkedPerRepItems, setCheckedPerRepItems] = useState([]);
+    const [checkedPerNos, setCheckedPerNos] = useState([]);
 
     // 개별 실적신고 체크박스 클릭 이벤트
-    const handlePerRepCheckboxChange = (id) => {
-        setCheckedPerRepItems((prev) => prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]);
+    const handlePerRepCheckboxChange = (perNo) => {
+        setCheckedPerNos(
+            (prevState) => prevState.includes(perNo)
+                ? prevState.filter((item) => item !== perNo) : [...prevState, perNo]
+        );
     };
 
     // 전체 실적신고 체크박스 선택/해제
     const handleSelectPerRepAll = (e) => {
-        setCheckedPerRepItems(e.target.checked ? perRepData.map((item) => item.id) : []);
+        setCheckedPerNos(e.target.checked ? perRepList.map((item) => item.perNo) : []);
     };
     /*** 체크박스 끝 ***/
+
+    /*** 장비 목록 삭제 시작 ***/
+    const softDeleteEqpmnReps = async () => {
+        const apiUrl = "/api/v1/epr/softDelEqpmnReps.do";
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({checkedRegNos})
+        }
+
+        await EgovNet.requestFetch(apiUrl,
+            requestOptions,
+            (res) => {
+                alert("삭제하였습니다.");
+                selectEqpmnRepList();
+            },
+            (err) => {
+                console.log("err response", err);
+            });
+        console.groupEnd("softDeleteEqpmnReps");
+    }
+    /*** 장비목록 삭제 끝 ***/
+
+    /*** 실적목록 삭제 시작***/
+    /*** 실적목록 삭제 끝***/
+    /**** 데이터 삭제(SoftDelete) 끝 *****/
 
     /*** 모달 시작 ***/
     // 모달 상태 관리
@@ -359,7 +322,7 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
                                             }} onClick={() => openSecondModal('eqpmnRepCreateModal')}>
                                                 등록
                                             </button>
-                                            <button style={closeButtonStyle} onClick={closeModal}>삭제</button>
+                                            <button style={closeButtonStyle} onClick={softDeleteEqpmnReps}>삭제</button>
                                         </div>
 
                                     </div>
@@ -369,7 +332,7 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
                                                 <input
                                                     type="checkbox"
                                                     onChange={handleSelectEqpmnRepAll}
-                                                    checked={checkedEqpmnRepItems.length === eqpmnRepData.length}
+                                                    checked={checkedRegNos.length === eqpmnRepList.length}
                                                 />
                                             </span>
                                             <span>장비일련번호</span>
@@ -382,13 +345,13 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
                                         <div className="result">
                                             {eqpmnRepList && eqpmnRepList.length > 0 ? (
                                                 eqpmnRepList.map((item) => (
-                                                    <div key={item.eqpmnNo} className="list_item">
+                                                    <div key={item.regNo} className="list_item">
                                                         <div>
                                                             <input
                                                                 type="checkbox"
-                                                                value={item.eqpmnNo}
-                                                                checked={checkedEqpmnRepItems.includes(item.eqpmnNo)}
-                                                                onChange={() => handleEqpmnRepCheckboxChange(item.eqpmnNo)}
+                                                                value={item.regNo}
+                                                                checked={checkedRegNos.includes(item.regNo)}
+                                                                onChange={() => handleEqpmnRepCheckboxChange(item.regNo)}
                                                             />
                                                         </div>
                                                         <div>{item.eqpmnNo}</div>
@@ -497,7 +460,7 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
                                                 <input
                                                     type="checkbox"
                                                     onChange={handleSelectPerRepAll}
-                                                    checked={checkedPerRepItems.length === perRepData.length}
+                                                    checked={checkedPerNos.length === perRepList.length}
                                                 />
                                             </span>
                                             <span>실적일련번호</span>
@@ -515,7 +478,7 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
                                                             <input
                                                                 type="checkbox"
                                                                 value={item.perNo}
-                                                                checked={checkedPerRepItems.includes(item.perNo)}
+                                                                checked={checkedPerNos.includes(item.perNo)}
                                                                 onChange={() => handlePerRepCheckboxChange(item.perNo)}
                                                             />
                                                         </div>
