@@ -221,6 +221,28 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
     /*** 장비목록 삭제 끝 ***/
 
     /*** 실적목록 삭제 시작***/
+    const softDeletePerReps = async () => {
+        const apiUrl = "/api/v1/epr/softDeletePerReps.do";
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({checkedPerNos})
+        }
+
+        await EgovNet.requestFetch(apiUrl,
+            requestOptions,
+            (res) => {
+                alert("삭제되었습니다.");
+                selectPerRepList();
+            },
+            (err) => {
+                console.log("err response", err);
+            })
+        console.groupEnd("softDeletePerReps");
+    }
     /*** 실적목록 삭제 끝***/
     /**** 데이터 삭제(SoftDelete) 끝 *****/
 
@@ -451,7 +473,7 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
                                             }} onClick={() => openSecondModal('perRepCreateModal')}>
                                                 등록
                                             </button>
-                                            <button style={closeButtonStyle} onClick={closeModal}>삭제</button>
+                                            <button style={closeButtonStyle} onClick={softDeletePerReps}>삭제</button>
                                         </div>
                                     </div>
                                     <div className="board_list" style={{marginTop: "10px"}}>
