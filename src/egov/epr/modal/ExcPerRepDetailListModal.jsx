@@ -3,7 +3,7 @@ import EqpmnRepCreateModal from "./EqpmnRepCreateModal";
 import PerRepCreateModal from "./PerRepCreateModal";
 import * as EgovNet from "../../../context/egovFetch";
 
-const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
+const ExcPerRepDetailListModal = ({closeModal, excPerRep, reloadExcPerRepList}) => {
 
     const modalOverlayStyle = {
         position: 'fixed',
@@ -269,6 +269,36 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
         }));
     };
     /*** 모달 끝 ***/
+
+    /**** 데이터 변경 시작 ****/
+    /*** 수행실적 신고 상태 변경 시작 ***/
+    const updateStatusWritingToWait = async () => {
+        const excPerRepSeq = excPerRep?.excPerRepSeq;
+
+        const apiUrl = "/api/v1/epr/updateStatusWritingToWait.do";
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({excPerRepSeq})
+        }
+
+        await EgovNet.requestFetch(apiUrl,
+            requestOptions,
+            (res) => {
+                alert("제출되었습니다.");
+                reloadExcPerRepList();
+                closeModal();
+            },
+            (err) => {
+                console.log("err response", err);
+            });
+        console.groupEnd("updateStatusWritingToWait");
+    }
+    /*** 수행실적 신고 상태 변경 끝 ***/
+    /**** 데이터(수행실적 신고 상태) 변경 끝 ****/
 
     return (
         <div>
@@ -602,7 +632,8 @@ const ExcPerRepDetailListModal = ({closeModal, excPerRep}) => {
                                         color: "white",
                                         borderRadius: "5px",
                                         textDecoration: "none"
-                                    }}>
+                                    }}
+                                    onClick={updateStatusWritingToWait}>
                                         제출
                                     </button>
                                 </div>

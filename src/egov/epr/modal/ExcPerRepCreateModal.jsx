@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import URL from "../../../context/url";
 import * as EgovNet from "../../../context/egovFetch";
 
-const ExcPerRepCreateModal = ({closeModal}) => {
+const ExcPerRepCreateModal = ({closeModal, reloadExcPerRepList}) => {
 
     const modalOverlayStyle = {
         position: 'fixed',
@@ -91,8 +91,8 @@ const ExcPerRepCreateModal = ({closeModal}) => {
             requestOptions,
             (res)=>{
                 alert("등록되었습니다.")
+                reloadExcPerRepList();
                 closeModal();
-                window.location.reload();
             },
             (err) => {
                 console.log("err response : ", err);

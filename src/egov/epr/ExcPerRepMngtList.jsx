@@ -322,9 +322,9 @@ const ExcPerRepMngtList = () => {
                             </div>
                         </div>
                         {modalStates.detailModal &&
-                            <ExcPerRepDetailListModal closeModal={() => closeModal('detailModal')} excPerRep={selectedExcPerRep}/>}
+                            <ExcPerRepDetailListModal closeModal={() => closeModal('detailModal')} excPerRep={selectedExcPerRep} reloadExcPerRepList={() => selectExcPerRepList()}/>}
                         {modalStates.createModal &&
-                            <ExcPerRepCreateModal closeModal={() => closeModal('createModal')}/>}
+                            <ExcPerRepCreateModal closeModal={() => closeModal('createModal')} reloadExcPerRepList={() => selectExcPerRepList()}/>}
                     </div>
                 </div>
             </div>
