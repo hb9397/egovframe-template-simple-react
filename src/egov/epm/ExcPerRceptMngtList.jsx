@@ -70,6 +70,7 @@ const ExcPerRceptListMngt = () => {
                 setUser(res.result?.user);
                 setPaginationInfo(res.result?.paginationInfo);
                 setList(res.result?.list);
+                setCheckedItems([]);
             },
             (err) => {
                 console.log("err response : ", err);
@@ -118,8 +119,69 @@ const ExcPerRceptListMngt = () => {
 
     /*** 체크박스 끝 ***/
 
-    /*** 모달 시작 ***/
+    /**** 수행실적 상태 변경 시작 ****/
+    /*** 수행실적 승인(접수대기 -> 승인) 시작 ***/
+    const updateStatusWaitToApproval = async () => {
+        const apiUrl = "/api/v1/epm/updateStatusWaitToApproval.do";
 
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ checkedExcPerReqSeqs: checkedItems })
+        }
+
+        await EgovNet.requestFetch(apiUrl,
+            requestOptions,
+            (res) => {
+                if(res.result?.consequence > 0){
+                    alert("승인하였습니다.");
+                    selectExcPerRepList();
+                    setCheckedItems([]);
+                } else {
+                    alert("접수대기 상태만 승인할 수 있습니다.")
+                }
+            },
+            (err) => {
+                console.log("err response : ", err);
+            });
+        console.groupEnd("updateStatusWaitToApproval");
+    }
+    /*** 수행실적 승인(접수대기 -> 승인) 끝 ***/
+
+    /*** 수행실적 반려(접수대기 -> 반려) 시작 ***/
+    const updateStatusWaitToReject = async () => {
+        const apiUrl = "/api/v1/epm/updateStatusWaitToReject.do";
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ checkedExcPerReqSeqs: checkedItems })
+        }
+
+        await EgovNet.requestFetch(apiUrl,
+            requestOptions,
+            (res) => {
+                if(res.result?.consequence > 0){
+                    alert("반려하였습니다.");
+                    selectExcPerRepList();
+                    setCheckedItems([]);
+                } else {
+                    alert("접수대기 상태만 반려할 수 있습니다.");
+                }
+            },
+            (err) => {
+                console.log("err response : ", err);
+            })
+        console.groupEnd("updateStatusWaitToReject")
+    }
+    /*** 수행실적 반려(접수대기 -> 반려) 끝 ***/
+    /**** 수행실적 상태 변경 끝 ****/
+
+    /*** 모달 시작 ***/
     const [modalStates, setModalStates] = useState({
         detailModal: false,
     }); // 모달 상태 관리
@@ -255,10 +317,11 @@ const ExcPerRceptListMngt = () => {
                                     borderRadius: "5px",
                                     textDecoration: "none",
                                     marginRight: "0.5rem",
-                                }}>
+                                }}
+                                onClick={updateStatusWaitToApproval}>
                                     승인
                                 </button>
-                                <button style={closeButtonStyle}>반려</button>
+                                <button style={closeButtonStyle} onClick={updateStatusWaitToReject}>반려</button>
                             </div>
                         </div>
 
