@@ -74,7 +74,7 @@ const perRepData = [
 // 페이지 네이션
 const itemsPerPage = 3
 
-const ExcPerRceptDetailListModal = ({closeModal}) => {
+const ExcPerRceptDetailListModal = ({closeModal, excPerRep, reloadExcPerRepList}) => {
 
     const modalOverlayStyle = {
         position: 'fixed',

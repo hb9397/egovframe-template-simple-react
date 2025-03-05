@@ -22,7 +22,7 @@ const ExcPerRepMngtList = () => {
 
 
     /*** 데이터 검색 조건 시작***/
-        // 검색 조건 상태 값
+    // 검색 조건 상태 값
     const [searchCondition, setSearchCondition] = useState({
             searchExcPerRepName: '', // 용역명
             searchExcDate: '',       // 수행일자
@@ -51,8 +51,6 @@ const ExcPerRepMngtList = () => {
             },
             body: JSON.stringify(searchCondition)
         }
-
-
 
         await EgovNet.requestFetch(apiUrl,
             requestOptions,

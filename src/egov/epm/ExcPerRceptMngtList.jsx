@@ -2,24 +2,10 @@ import React, {useState, useEffect} from 'react';
 import {Link} from "react-router-dom";
 import {default as EgovLeftNav} from 'egov/common/leftmenu/EPMLeftExcPerRcept';
 import ExcPerRceptDetailListModal from "./modal/ExcPerRceptDetailListModal";
+import * as EgovNet from "../../context/egovFetch";
 
-// 임시 데이터
-const data = [{id: 3, year: 2021, taskName: "전자정부표준프레임워크 인스톨러 V1.037", status: "완료", updatedDate: "2021-07-24"}, {
-    id: 2,
-    year: 2021,
-    taskName: "전자정부표준프레임워크 인스톨러 V1.037",
-    status: "진행중",
-    updatedDate: "2021-07-24"
-}, {id: 1, year: 2021, taskName: "전자정부표준프레임워크 인스톨러 V1.037", status: "대기", updatedDate: "2021-07-24"}, {
-    id: 0,
-    year: 2022,
-    taskName: "테스트 소프트웨어",
-    status: "완료",
-    updatedDate: "2022-01-10"
-},];
 
-// 페이지 네이션
-const itemsPerPage = 3;
+/*** useEffect, useState 만 사용한 데이터 조회 ***/
 
 const ExcPerRceptListMngt = () => {
 
@@ -37,17 +23,82 @@ const ExcPerRceptListMngt = () => {
     };
 
     /*** 페이지 네이션 시작 ***/
+    // 페이지 네이션 정보
+    const [paginationInfo, setPaginationInfo] = useState({});
 
-    // 현재 페이지
-    const [currentPage, setCurrentPage] = useState(1);
+    // 데이터 정보
+    const [list, setList] = useState({});
 
-    // 총 페이지 수 계산
-    const totalPages = Math.ceil(data.length / itemsPerPage);
-
-    // 현재 페이지에 해당하는 데이터 필터링
-    const currentItems = data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
+    // user 정보
+    const [user, setUser] = useState({});
     /*** 페이지 네이션 끝 ***/
+
+    /*** 데이터 검색 조건 시작***/
+    // 검색 조건 상태 값
+    const [searchCondition, setSearchCondition] = useState({
+            searchExcPerRepName: '', // 용역명
+            searchExcDate: '',       // 수행일자
+            pageIndex: 1,            // 현재(요청한)페이지
+            pageUnit: 10,            // 페이지 크기
+        });
+
+    // 검색 조건 상태 변경
+    const handleSearchCondition = (e) => {
+        const {name, value} = e.target;
+        setSearchCondition((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    }
+    /*** 데이터 검색 조건 끝 ***/
+
+    /*** 데이터 list 불러오기 정보 시작 ***/
+    const selectExcPerRepList = async () => {
+        const apiUrl = "/api/v1/epr/excPerRepList.do";
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(searchCondition)
+        }
+
+        await EgovNet.requestFetch(apiUrl,
+            requestOptions,
+            (res) => {
+                setUser(res.result?.user);
+                setPaginationInfo(res.result?.paginationInfo);
+                setList(res.result?.list);
+            },
+            (err) => {
+                console.log("err response : ", err);
+            })
+        console.groupEnd("selectExcPerRepList")
+    }
+    /*** 데이터 list 불러오기 끝 ***/
+
+    /*** 연도 셀렉트 박스 시작 ***/
+    const currentYear = new Date().getFullYear();
+    const years = Array.from({length: 10}, (_, i) => currentYear - 10 + i);
+    /*** 연도 셀렉트 박스 끝 ***/
+
+    /*** 데이터 최초 조회 및 페이지네이션 시, 데이터 조회 시작 ***/
+    useEffect(() => {
+        selectExcPerRepList();
+    }, [searchCondition.pageIndex]);
+    /*** 데이터 최초 조회 및 페이지네이션 시, 데이터 조회 끝 ***/
+
+    /*** 검색 버튼  이벤트 시작 ***/
+    const onClickSearchBtn = async () => {
+        setSearchCondition((prevState) => (
+            {
+                ...prevState,
+                pageIndex: 1,
+            }))
+        await selectExcPerRepList()
+    }
+    /*** 검색 버튼  이벤트 끝 ***/
 
     /*** 체크박스 시작 ***/
 
@@ -55,23 +106,17 @@ const ExcPerRceptListMngt = () => {
     const [checkedItems, setCheckedItems] = useState([]);
 
     // 개별 체크박스 클릭 이벤트
-    const handleCheckboxChange = (id) => {
-        setCheckedItems((prev) => prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]);
+    const handleCheckboxChange = (excPerRepSeq) => {
+        setCheckedItems((prev) => prev.includes(excPerRepSeq) ?
+            prev.filter((item) => item !== excPerRepSeq) : [...prev, excPerRepSeq]);
     };
 
     // 전체 선택/해제
     const handleSelectAll = (e) => {
-        setCheckedItems(e.target.checked ? data.map((item) => item.id) : []);
+        setCheckedItems(e.target.checked ? list?.map((item) => item.excPerRepSeq) : []);
     };
 
     /*** 체크박스 끝 ***/
-
-    /*** 연도 셀렉트 박스 시작 ***/
-
-    const currentYear = new Date().getFullYear();
-    const years = Array.from({length: 10}, (_, i) => currentYear - 10 + i);
-
-    /*** 연도 셀렉트 박스 끝 ***/
 
     /*** 모달 시작 ***/
 
@@ -80,7 +125,9 @@ const ExcPerRceptListMngt = () => {
     }); // 모달 상태 관리
 
     // 모달 열기
-    const openModal = (modalName) => {
+    const openModal = (modalName, curExcPerRep) => {
+        setSelectedExcPerRep(curExcPerRep);
+
         setModalStates((prevState) => ({
             ...prevState, [modalName]: true,
         }));
@@ -92,7 +139,8 @@ const ExcPerRceptListMngt = () => {
             ...prevState, [modalName]: false,
         }));
     };
-
+    // 디테일 모달 키값
+    const [selectedExcPerRep, setSelectedExcPerRep] = useState({});
     /*** 모달 끝 ***/
 
 
@@ -138,7 +186,13 @@ const ExcPerRceptListMngt = () => {
                                 </li>
                                 <li className="third_1 L">
                                     <label className="f_select w_500" htmlFor="year_select">
-                                        <select name="year_select" id="year_select">
+                                        <select name="year_select" id="year_select"
+                                            onChange={(e) => handleSearchCondition({
+                                                target : {
+                                                    name : "searchExcDate",
+                                                    value: e.target.value
+                                                }
+                                            })}>
                                             <option value="">선택안함</option>
                                             {years.map((year) => (<option key={year} value={year}>
                                                 {year}
@@ -161,14 +215,22 @@ const ExcPerRceptListMngt = () => {
                                 <li className="third_2 R">
                                     {/* <!-- 210806 수정 --> */}
                                     <span className="f_search w_500">
-                                        <input type="text" name="" placeholder=""/>
+                                        <input type="text" name="" placeholder=""
+                                            onChange={(e) => handleSearchCondition({
+                                                target : {
+                                                    name : "searchExcPerRepName",
+                                                    value: e.target.value
+                                                }
+                                            })}/>
                                     </span>
                                 </li>
                             </ul>
                             <ul className="mt10" style={{width: "71%"}}>
                                 <li className="w_full">
                                     <button
-                                        className="btn btn_blue_h46 pd35 w_full">검색
+                                        className="btn btn_blue_h46 pd35 w_full"
+                                        onClick={() => onClickSearchBtn()}>
+                                        검색
                                     </button>
                                 </li>
                             </ul>
@@ -207,7 +269,7 @@ const ExcPerRceptListMngt = () => {
                                     <input
                                         type="checkbox"
                                         onChange={handleSelectAll}
-                                        checked={checkedItems.length === data.length}
+                                        checked={checkedItems.length === list.length}
                                     />
                                 </span>
                                 <span style={{width: '20%'}}>수행년도</span>
@@ -216,21 +278,21 @@ const ExcPerRceptListMngt = () => {
                                 <span>수정일시</span>
                             </div>
                             <div className="result">
-                                {currentItems.length > 0 ? (currentItems.map((item) => (
-                                    <div key={item.id} className="list_item">
+                                {list.length > 0 ? (list?.map((item) => (
+                                    <div key={item.excPerRepSeq} className="list_item">
                                         <div>
                                             <input
                                                 type="checkbox"
-                                                value={item.id}
-                                                checked={checkedItems.includes(item.id)}
-                                                onChange={() => handleCheckboxChange(item.id)}
+                                                value={item.excPerRepSeq}
+                                                checked={checkedItems.includes(item.excPerRepSeq)}
+                                                onChange={() => handleCheckboxChange(item.excPerRepSeq)}
                                             />
                                         </div>
                                         <div style={{color: "blue", textDecoration: "underline", cursor: "pointer", width: '20%'}}
-                                             onClick={() => openModal('detailModal')}>{item.year}</div>
-                                        <div style={{width: '40%'}}>{item.taskName}</div>
-                                        <div>{item.status}</div>
-                                        <div>{item.updatedDate}</div>
+                                             onClick={() => openModal('detailModal', item)}>{item.excDate}</div>
+                                        <div style={{width: '40%'}}>{item.excPerRepName}</div>
+                                        <div>{item.progrsStatName}</div>
+                                        <div>{item.cngDate}</div>
                                     </div>)
                                 )) : (
                                     <p className="no_data">검색된 결과가 없습니다.</p>
@@ -243,7 +305,13 @@ const ExcPerRceptListMngt = () => {
                                     <ul>
                                         {/* "처음" - First page button */}
                                         <li className="btn">
-                                            <button disabled={currentPage === 1} onClick={() => setCurrentPage(1)}
+                                            <button disabled={searchCondition.pageIndex === 1}
+                                                    onClick={(e) => handleSearchCondition({
+                                                        target:{
+                                                            name : 'pageIndex',
+                                                            value : 1
+                                                        }
+                                                    })}
                                                     className="first">
                                                 처음
                                             </button>
@@ -251,18 +319,28 @@ const ExcPerRceptListMngt = () => {
 
                                         {/* "이전" - Previous page button */}
                                         <li className="btn">
-                                            <button disabled={currentPage === 1}
-                                                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                            <button disabled={searchCondition.pageIndex === 1}
+                                                    onClick={(e) => handleSearchCondition({
+                                                        target : {
+                                                            name : 'pageIndex',
+                                                            value : Math.max(searchCondition.pageIndex - 1, 1),
+                                                        }
+                                                    })}
                                                     className="prev">
                                                 이전
                                             </button>
                                         </li>
 
                                         {/* Pagination buttons for each page */}
-                                        {Array.from({length: totalPages}, (_, i) => (<li key={i}>
+                                        {Array.from({length: paginationInfo.totalPageCount}, (_, i) => (<li key={i}>
                                             <button
-                                                className={currentPage === i + 1 ? "cur" : ""}
-                                                onClick={() => setCurrentPage(i + 1)}
+                                                className={searchCondition.pageIndex === i + 1 ? "cur" : ""}
+                                                onClick={(e) => handleSearchCondition({
+                                                    target:{
+                                                        name : 'pageIndex',
+                                                        value : i + 1
+                                                    }
+                                                })}
                                             >
                                                 {i + 1}
                                             </button>
@@ -270,8 +348,13 @@ const ExcPerRceptListMngt = () => {
 
                                         {/* "다음" - Next page button */}
                                         <li className="btn">
-                                            <button disabled={currentPage === totalPages}
-                                                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                            <button disabled={searchCondition.pageIndex === paginationInfo?.totalPageCount}
+                                                    onClick={(e) => handleSearchCondition({
+                                                        target:{
+                                                            name : 'pageIndex',
+                                                            value: Math.min(searchCondition.pageIndex + 1, paginationInfo.totalPageCount),
+                                                        }
+                                                    })}
                                                     className="next">
                                                 다음
                                             </button>
@@ -279,8 +362,13 @@ const ExcPerRceptListMngt = () => {
 
                                         {/* "마지막" - Last page button */}
                                         <li className="btn">
-                                            <button disabled={currentPage === totalPages}
-                                                    onClick={() => setCurrentPage(totalPages)} className="last">
+                                            <button disabled={searchCondition.pageIndex === paginationInfo?.totalPageCount}
+                                                    onClick={(e) => handleSearchCondition({
+                                                        target:{
+                                                            name : 'pageIndex',
+                                                            value : paginationInfo?.totalPageCount
+                                                        }
+                                                    })} className="last">
                                                 마지막
                                             </button>
                                         </li>
@@ -289,7 +377,7 @@ const ExcPerRceptListMngt = () => {
                             </div>
                         </div>
                         {modalStates.detailModal &&
-                            <ExcPerRceptDetailListModal closeModal={() => closeModal('detailModal')}/>}
+                            <ExcPerRceptDetailListModal closeModal={() => closeModal('detailModal')} excPerRep={selectedExcPerRep} reloadExcPerRepList={() => selectExcPerRepList()}/>}
                     </div>
                 </div>
             </div>
